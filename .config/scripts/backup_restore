@@ -1,0 +1,182 @@
+#!/usr/bin/env bash
+
+# ========================
+# BACKUP
+# ========================
+
+DOTFILES="$HOME/dotfiles"
+
+sources=(
+  "$HOME/.config/starship.toml"
+  "$HOME/.blerc"
+  "$HOME/.bashrc"
+  "$HOME/.bash_profile"
+  # "$HOME/projects"
+  # "$HOME/backup"
+  "$HOME/.config/copyq/themes"
+  "$HOME/.config/copyq/copyq-commands.ini"
+  "$HOME/.config/copyq/copyq.conf"
+  "$HOME/.config/scripts"
+  "$HOME/.config/tmux/tmux.conf"
+  "$HOME/.config/kitty"
+  "$HOME/.config/mimeapps.list"
+  "$HOME/.config/nvim"
+)
+
+for src in "${sources[@]}"; do
+  if [[ ! -e "$src" && ! -L "$src" ]]; then
+    echo "skip (not found): $src"
+    continue
+  fi
+  if [[ -L "$src" ]]; then
+    echo "already linked, skip: $src"
+    continue
+  fi
+  if [[ "$src" == "$HOME"/* ]]; then
+    rel="${src#$HOME/}"
+  else
+    rel="${src#/}"
+  fi
+  dest="$DOTFILES/$rel"
+  mkdir -p "$(dirname "$dest")"
+  mv "$src" "$dest"
+  ln -sfn "$dest" "$src"
+  echo "linked: $src -> $dest"
+done
+
+# keyd needs sudo separately since /etc isn't user-writable
+if [[ -e /etc/keyd/default.conf && ! -L /etc/keyd/default.conf ]]; then
+  sudo mv /etc/keyd/default.conf "$DOTFILES/etc/keyd/default.conf"
+  sudo chown "$USER:$USER" "$DOTFILES/etc/keyd/default.conf"
+  sudo ln -sfn "$DOTFILES/etc/keyd/default.conf" /etc/keyd/default.conf
+  echo "linked: /etc/keyd/default.conf -> $DOTFILES/etc/keyd/default.conf"
+else
+  echo "skip (already linked or missing): /etc/keyd/default.conf"
+fi
+
+echo "Backup complete: $DOTFILES"
+
+# ========================
+# RESTORE
+# ========================
+
+# https://github.com/ryanoasis/nerd-fonts/releases/latest
+mkdir -p "$HOME/.local/share/fonts"
+pushd "$HOME/.local/share/fonts/" && \
+rm -rf ./* && \
+curl -L "https://github.com/ryanoasis/nerd-fonts/releases/download/v3.5.0/JetBrainsMono.tar.xz" | \
+tar -xJf - && fc-cache -fv && \
+popd
+
+sudo pacman -S --needed --noconfirm nautilus fd ripgrep starship zoxide neovim wl-clipboard copyq git github-cli firefox lazygit man-db man-pages
+sudo pacman -S --needed --noconfirm grim slurp satty
+sudo pacman -S --needed --noconfirm noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra ttf-jetbrains-mono-nerd
+paru -S --needed --noconfirm blesh-git
+sudo man-db
+
+sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
+sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null << 'EOF'
+[Service]
+ExecStart=
+ExecStart=-/usr/bin/agetty --autologin iqrar --noclear %I $TERM
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart getty@tty1
+sudo reboot
+
+git clone https://github.com/iqrar-eng/dotfiles ~/dotfiles
+
+for src in "${sources[@]}"; do
+  if [[ "$src" == "$HOME"/* ]]; then
+    rel="${src#$HOME/}"
+  else
+    rel="${src#/}"
+  fi
+  dotfile_src="$DOTFILES/$rel"
+
+  if [[ ! -e "$dotfile_src" && ! -L "$dotfile_src" ]]; then
+    echo "skip (not in dotfiles): $rel"
+    continue
+  fi
+
+  if [[ -L "$src" ]]; then
+    current_target="$(readlink -f "$src")"
+    expected_target="$(readlink -f "$dotfile_src")"
+    if [[ "$current_target" == "$expected_target" ]]; then
+      echo "already linked correctly, skip: $src"
+      continue
+    fi
+  fi
+
+  mkdir -p "$(dirname "$src")"
+  ln -sfn "$dotfile_src" "$src"
+  echo "restored: $src -> $dotfile_src"
+done
+
+# keyd - needs sudo, lives outside $HOME
+keyd_dest="$DOTFILES/etc/keyd/default.conf"
+keyd_target="/etc/keyd/default.conf"
+
+if [[ -e "$keyd_dest" ]]; then
+  if [[ -L "$keyd_target" && "$(readlink -f "$keyd_target")" == "$(readlink -f "$keyd_dest")" ]]; then
+    echo "keyd already linked correctly, skip"
+  else
+    if [[ -e "$keyd_target" && ! -L "$keyd_target" ]]; then
+      sudo mv "$keyd_target" "$keyd_target.preexisting-backup"
+      echo "backed up pre-existing: $keyd_target -> $keyd_target.preexisting-backup"
+    fi
+    sudo mkdir -p "$(dirname "$keyd_target")"
+    sudo ln -sfn "$keyd_dest" "$keyd_target"
+    echo "restored: $keyd_target -> $keyd_dest"
+  fi
+else
+  echo "skip (not in dotfiles): $keyd_target"
+fi
+
+echo "Restore complete from: $DOTFILES"
+
+# ========================
+
+mkdir -p ~/.src
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/prisma/web.git prisma
+git -C ~/.src/prisma sparse-checkout set --no-cone \
+  'apps/docs/content/docs/**/*.mdx' \
+  '!apps/docs/content/docs/**/v6/**'
+git -C ~/.src/prisma checkout
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/better-auth/better-auth.git better-auth
+git -C ~/.src/better-auth sparse-checkout set --no-cone \
+  'docs/content/docs/**/*.mdx'
+git -C ~/.src/better-auth checkout
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/vercel/next.js.git next.js
+git -C ~/.src/next.js sparse-checkout set --no-cone \
+  'docs/01-app'
+git -C ~/.src/next.js checkout
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/nodejs/node.git node
+git -C ~/.src/node sparse-checkout set --no-cone \
+  'doc/api'
+git -C ~/.src/node checkout
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/mdn/content.git mdn
+git -C ~/.src/mdn sparse-checkout set --no-cone \
+  'files/en-us/web/api' \
+  'files/en-us/web/http' \
+  'files/en-us/web/javascript'
+git -C ~/.src/mdn checkout
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/reactjs/react.dev.git react
+git -C ~/.src/react sparse-checkout set --no-cone \
+  'src/content/reference'
+git -C ~/.src/react checkout
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/typescript-cheatsheets/react.git typescript-cheatsheets-react
+git -C ~/.src/typescript-cheatsheets-react sparse-checkout set --no-cone \
+  'docs'
+git -C ~/.src/typescript-cheatsheets-react checkout
+rm ~/.src/react/src/content/reference/_basic
+rm ~/.src/react/src/content/reference/_api
+ln -s ~/.src/typescript-cheatsheets-react/docs/basic/getting-started/ ~/.src/react/src/content/reference/_basic
+ln -s ~/.src/typescript-cheatsheets-react/docs/reference/ ~/.src/react/src/content/reference/_api
