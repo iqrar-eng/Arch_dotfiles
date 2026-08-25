@@ -1,16 +1,8 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-DIR="$HOME/laptop"
-mkdir -p "$DIR"
-
-dconf dump / > "$DIR/dconf.conf"
-
-DOTFILES="$HOME/dotfiles"
-
 sources=(
   "$HOME/.config/starship.toml"
-  /etc/keyd/default.conf
   "$HOME/.blerc"
   "$HOME/.bashrc"
   "$HOME/.bash_profile"
@@ -31,6 +23,10 @@ for src in "${sources[@]}"; do
     echo "skip (not found): $src"
     continue
   fi
+  if [[ -L "$src" ]]; then
+    echo "already linked, skip: $src"
+    continue
+  fi
   if [[ "$src" == "$HOME"/* ]]; then
     rel="${src#$HOME/}"
   else
@@ -44,7 +40,13 @@ for src in "${sources[@]}"; do
 done
 
 # keyd needs sudo separately since /etc isn't user-writable
-sudo mv /etc/keyd/default.conf "$DOTFILES/etc/keyd/default.conf"
-sudo ln -sfn "$DOTFILES/etc/keyd/default.conf" /etc/keyd/default.conf
+if [[ -e /etc/keyd/default.conf && ! -L /etc/keyd/default.conf ]]; then
+    sudo mv /etc/keyd/default.conf "$DOTFILES/etc/keyd/default.conf"
+    sudo chown "$USER:$USER" "$DOTFILES/etc/keyd/default.conf"
+    sudo ln -sfn "$DOTFILES/etc/keyd/default.conf" /etc/keyd/default.conf
+    echo "linked: /etc/keyd/default.conf -> $DOTFILES/etc/keyd/default.conf"
+else
+    echo "skip (already linked or missing): /etc/keyd/default.conf"
+fi
 
 echo "Backup complete: $DOTFILES"
