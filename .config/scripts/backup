@@ -1,0 +1,50 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+DIR="$HOME/laptop"
+mkdir -p "$DIR"
+
+dconf dump / > "$DIR/dconf.conf"
+
+DOTFILES="$HOME/dotfiles"
+
+sources=(
+  "$HOME/.config/starship.toml"
+  /etc/keyd/default.conf
+  "$HOME/.blerc"
+  "$HOME/.bashrc"
+  "$HOME/.bash_profile"
+  # "$HOME/projects"
+  # "$HOME/.src"
+  # "$HOME/backup"
+  "$HOME/.config/copyq"
+  "$HOME/.config/scripts"
+  # "$HOME/.ssh"
+  "$HOME/.config/tmux/tmux.conf"
+  "$HOME/.config/kitty"
+  "$HOME/.config/mimeapps.list"
+  "$HOME/.config/nvim"
+)
+
+for src in "${sources[@]}"; do
+  if [[ ! -e "$src" && ! -L "$src" ]]; then
+    echo "skip (not found): $src"
+    continue
+  fi
+  if [[ "$src" == "$HOME"/* ]]; then
+    rel="${src#$HOME/}"
+  else
+    rel="${src#/}"
+  fi
+  dest="$DOTFILES/$rel"
+  mkdir -p "$(dirname "$dest")"
+  mv "$src" "$dest"
+  ln -sfn "$dest" "$src"
+  echo "linked: $src -> $dest"
+done
+
+# keyd needs sudo separately since /etc isn't user-writable
+sudo mv /etc/keyd/default.conf "$DOTFILES/etc/keyd/default.conf"
+sudo ln -sfn "$DOTFILES/etc/keyd/default.conf" /etc/keyd/default.conf
+
+echo "Backup complete: $DOTFILES"

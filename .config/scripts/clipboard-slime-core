@@ -1,0 +1,43 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+EXECUTE=0
+JUMP=0
+TARGET_PANE=":"
+
+for arg in "$@"; do
+  case "$arg" in
+    --execute) EXECUTE=1 ;;
+    --jump)    JUMP=1    ;;
+    *)         TARGET_PANE="$arg" ;;
+  esac
+done
+
+if [[ -n "${TMUX:-}" ]]; then
+  SOCKET_PATH="${TMUX%%,*}"
+  if [[ "$SOCKET_PATH" == /* ]]; then
+    TMUX_CMD="tmux -S $SOCKET_PATH"
+  else
+    TMUX_CMD="tmux -L $SOCKET_PATH"
+  fi
+else
+  TMUX_CMD="tmux"
+fi
+
+TEXT="$(wl-paste 2>/dev/null)" || { echo "Error: clipboard empty or unavailable" >&2; exit 1; }
+
+[[ -z "$TEXT" ]] && { echo "Clipboard is empty." >&2; exit 0; }
+
+$TMUX_CMD send-keys -t "$TARGET_PANE" C-c
+
+printf '%s' "$TEXT" | $TMUX_CMD load-buffer -
+$TMUX_CMD paste-buffer -d -p -t "$TARGET_PANE"
+
+if [[ "$EXECUTE" -eq 1 ]]; then
+  $TMUX_CMD send-keys -t "$TARGET_PANE" Enter
+fi
+
+if [[ "$JUMP" -eq 1 ]]; then
+  hyprctl dispatch "hl.dsp.focus({ workspace = "3" })" >/dev/null
+fi

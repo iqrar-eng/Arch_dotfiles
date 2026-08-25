@@ -1,0 +1,9 @@
+#!/usr/bin/env bash
+
+cmd=$(wl-paste --primary 2>/dev/null)
+[ -z "$cmd" ] && cmd=$(wl-paste -n 2>/dev/null)
+[[ -z "${cmd//[[:space:]]/}" ]] && exit 0
+out=$(bash -c "$cmd" 2>&1)
+printf '$ %s\n%s' "$cmd" "$out" | wl-copy
+
+~/.config/scripts/util/hyprland

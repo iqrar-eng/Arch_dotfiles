@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+tmux_bin="${TMUX_PROGRAM:-tmux}"
+tmux_sock_arg=()
+[[ -n "${TMUX_SOCKET:-}" ]] && tmux_sock_arg=(-S "$TMUX_SOCKET")
+cur_session=$("$tmux_bin" "${tmux_sock_arg[@]}" display-message -p '#S')
+
+"$HOME/.config/tmux/plugins/tmux-resurrect/scripts/save.sh"
+"$tmux_bin" "${tmux_sock_arg[@]}" kill-server
+
+kitty --config ~/.config/kitty/kitty.conf --config ~/.config/kitty/kitty_terminal.conf sh -c 'tmux attach 2>/dev/null || tmux new-session' & disown

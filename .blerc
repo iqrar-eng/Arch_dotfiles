@@ -1,0 +1,401 @@
+function my/complete-load-hook {
+
+function ble/widget/my/complete-accept-nth {
+  local n=$(($1 - 1))  # 1-based → 0-based
+  # Dismiss auto_complete ghost text first to avoid keymap conflicts
+  [[ $_ble_decode_keymap == auto_complete ]] && ble/widget/auto_complete/cancel
+  # Now generate a fresh menu from the base keymap
+  ble/widget/complete show_menu
+  [[ $_ble_complete_menu_active ]] || return 1
+  local ncand=${#_ble_complete_menu_items[@]}
+    ((n >= 0 && n < ncand)) || return 1
+    ble/complete/menu-complete/enter || return 1
+    ble/complete/menu#select "$n"
+    ble/widget/menu_complete/accept
+}
+
+function ble/widget/my/complete-accept-nth-and-exec {
+  if [[ $_ble_decode_keymap == menu_complete ]]; then
+    ble/widget/menu_complete/accept
+  else
+    ble/widget/my/complete-accept-nth 1
+  fi
+  ble/widget/accept-line
+}
+
+local k
+for k in vi_imap auto_complete menu_complete; do
+  ble-bind -m "$k" -f 'C-]'  'my/complete-accept-nth-and-exec'
+  ble-bind -m "$k" -f 'M-C-S-home' 'my/complete-accept-nth 1'
+  ble-bind -m "$k" -f 'M-w'     'my/complete-accept-nth 2'
+  ble-bind -m "$k" -f 'M-y'     'my/complete-accept-nth 3'
+  ble-bind -m "$k" -f 'M-r'      'my/complete-accept-nth 4'
+  ble-bind -m "$k" -f 'M-t'      'my/complete-accept-nth 5'
+  ble-bind -m "$k" -f 'M-q'      'my/complete-accept-nth 6'
+  ble-bind -m "$k" -f 'M-u'      'my/complete-accept-nth 7'
+  ble-bind -m "$k" -f 'M-z'      'my/complete-accept-nth 8'
+  ble-bind -m "$k" -f 'M-o'      'my/complete-accept-nth 9'
+  ble-bind -m "$k" -f 'M-p'      'my/complete-accept-nth 10'
+done
+}
+blehook complete_load+=my/complete-load-hook
+ble/is-function ble/complete/menu#select && my/complete-load-hook
+
+function blerc/vim-mode-hook {
+  for k in vi_nmap vi_omap vi_xmap; do
+    ble-bind -m "$k" -f e 'vi-command/backward-char wrap'
+    ble-bind -m "$k" -f h 'vi-command/graphical-forward-line'
+    ble-bind -m "$k" -f l 'vi-command/graphical-backward-line'
+    ble-bind -m "$k" -f n 'vi-command/forward-char wrap'
+
+    ble-bind -m "$k" -f m vi-command/forward-vword-end
+    ble-bind -m "$k" -f M vi-command/forward-uword-end
+    ble-bind -m "$k" -f 'g m' vi-command/backward-vword-end
+    ble-bind -m "$k" -f 'g M' vi-command/backward-uword-end
+
+    ble-bind -m "$k" -f "^" vi-command/graphical-first-non-space
+
+    ble-bind -m "$k" -f j vi-command/search-repeat
+    ble-bind -m "$k" -f J vi-command/search-reverse-repeat
+  done
+
+  ble-bind -m 'vi_nmap' -f 'home' vi-command/beginning-of-graphical-line
+  ble-bind -m 'vi_omap' -f 'home' vi-command/beginning-of-graphical-line
+  ble-bind -m 'vi_xmap' -f 'home' vi-command/beginning-of-graphical-line
+  ble-bind -m 'vi_imap' -f 'home' vi-command/beginning-of-graphical-line
+  ble-bind -m 'vi_cmap' -f 'home' vi-command/beginning-of-graphical-line
+
+  ble-bind -m 'vi_nmap' -f 'end' vi-command/graphical-forward-eol
+  ble-bind -m 'vi_omap' -f 'end' vi-command/graphical-forward-eol
+  ble-bind -m 'vi_xmap' -f 'end' vi-command/graphical-forward-eol
+  ble-bind -m 'vi_imap' -f 'end' vi-command/graphical-forward-eol
+  ble-bind -m 'vi_cmap' -f 'end' vi-command/graphical-forward-eol
+
+  ble-bind -m 'vi_imap' -f 'up' vi-command/graphical-backward-line
+  ble-bind -m 'vi_cmap' -f 'up' vi-command/graphical-backward-line
+
+  ble-bind -m 'vi_imap' -f 'down' vi-command/graphical-forward-line
+  ble-bind -m 'vi_cmap' -f 'down' vi-command/graphical-forward-line
+
+  ble-bind -m 'vi_nmap' -f C-m accept-line
+  ble-bind -m 'vi_omap' -f C-m accept-line
+  ble-bind -m 'vi_xmap' -f C-m accept-line
+  ble-bind -m 'vi_imap' -f C-m accept-line
+  ble-bind -m 'vi_smap' -f C-m accept-line
+
+  ble-bind -m vi_nmap -s 'SP d' '"zd'
+  ble-bind -m vi_xmap -s 'SP d' '"zd'
+  ble-bind -m vi_nmap -s 'SP c' '"zc'
+  ble-bind -m vi_xmap -s 'SP c' '"zc'
+  ble-bind -m vi_nmap -s 'SP y' '"zy'
+  ble-bind -m vi_xmap -s 'SP y' '"zy'
+
+  ble-bind -m vi_nmap -s 'SP x' '"zx'
+  ble-bind -m vi_nmap -s 'SP X' '"zX'
+
+  ble-bind -m vi_nmap -s 'SP p' '"zp'
+  ble-bind -m vi_nmap -s 'SP P' '"zP'
+  ble-bind -m vi_xmap -s 'SP p' '"zp'
+
+  ble-bind -m 'vi_nmap' -f '#' vi-command/search-word-backward
+
+  ble-bind -m 'vi_nmap' -f 'SP _' vi_nmap/connect-line
+  ble-bind -m 'vi_xmap' -f 'SP _' vi_xmap/connect-line
+
+  ble-bind -m vi_nmap -f 'C-c' discard-line
+  ble-bind -m vi_xmap -f 'C-c' discard-line
+  ble-bind -m vi_imap -f 'C-c' discard-line
+
+  ble-bind -m vi_nmap -f 'S-RET' newline
+  ble-bind -m vi_xmap -f 'S-RET' newline
+  ble-bind -m vi_imap -f 'S-RET' newline
+  ble-bind -m vi_smap -f 'S-RET' newline
+  ble-bind -m auto_complete -f 'S-RET' newline
+  ble-bind -m menu_complete -f 'S-RET' newline
+
+  ble-bind -m vi_nmap -f 'C-z' undo
+  ble-bind -m vi_imap -f 'C-z' undo
+  ble-bind -m vi_nmap -f 'C-S-z' redo
+  ble-bind -m vi_imap -f 'C-S-z' redo
+
+  ble-bind -m vi_imap -f C-f 'history-search forward:hide-status'
+  ble-bind -m auto_complete -f C-f 'history-search forward:hide-status'
+
+  ble-bind -m vi_imap -f C-l   'history-search backward:hide-status'
+  ble-bind -m auto_complete -f C-l 'history-search backward:hide-status'
+
+ble-bind -m 'auto_complete' -f C-k auto_complete/accept-line
+
+  function ble/widget/my/open-line {
+    local ARG FLAG REG; ble/keymap:vi/get-arg 1
+    local ret
+    case $1 in
+      above) ble-edit/content/find-logical-bol ;;
+      *)     ble-edit/content/find-logical-eol ;;
+    esac
+    local pos=$ret
+    local lines
+    printf -v lines '%*s' "$ARG" ''
+    lines=${lines// /$'\n'}
+    ble/widget/.replace-range "$pos" "$pos" "$lines"
+
+    case $1 in
+      above) _ble_edit_ind=$pos ;;
+      *)     _ble_edit_ind=$((pos + ARG)) ;;
+    esac
+
+    ble/keymap:vi/adjust-command-mode
+  }
+ble-bind -m vi_nmap -f 'SP o' 'my/open-line below'
+ble-bind -m vi_nmap -f 'SP i' 'my/open-line above'
+
+ble-bind -m vi_nmap -c 'C-o' 'cd -'
+ble-bind -m vi_nmap -c 'C-k' 'cd ..'
+
+# ========================
+
+function ble/widget/my/_fzf-cd-from {
+  local root="${1:-$HOME}"
+  root="${root/#\~/$HOME}"
+  local selected
+  selected=$(
+    fd -t d --hidden \
+      --exclude .git \
+      --exclude node_modules \
+      --exclude .cache \
+      --base-directory "$root" \
+      . 2>/dev/null \
+      | fzf \
+      --preview "ls --color=always -A --group-directories-first '$root'/{}" \
+      --bind 'focus:transform:[[ -n {} ]] && echo show-preview || echo hide-preview'
+    ) || return 0
+    [[ -n "$selected" ]] || return 0
+    selected="${selected%/}"   # strip trailing slash fd appends
+    ble/widget/.replace-range 0 "${#_ble_edit_str}" "cd $(printf '%q' "$root/$selected")"
+      ble/widget/accept-line
+}
+
+function ble/widget/my/fzf-cd-home    { ble/widget/my/_fzf-cd-from "$HOME";           }
+ble-bind -m vi_nmap -f 'SP l' my/fzf-cd-home
+
+function ble/widget/my/fzf-cd-root-dir {
+  local root
+  root=$(git rev-parse --show-toplevel 2>/dev/null) || root="$PWD"
+  ble/widget/my/_fzf-cd-from "$root"
+}
+ble-bind -m vi_nmap -f 'C-l' my/fzf-cd-root-dir
+
+ble-bind -m 'vi_nmap' -x C-f fzf-file-widget
+ble-bind -m 'vi_nmap' -x C-r fzf-history-widget
+
+function ble/widget/my/fzf-cd-parent {
+  local dirs=()
+  local dir="$PWD"
+  while [[ -d "$dir" ]]; do
+    dirs+=("$dir")
+    [[ "$dir" == "/" ]] && break
+    dir="$(dirname "$dir")"
+  done
+  local selected
+  selected=$(printf '%s\n' "${dirs[@]}" | fzf --tac)
+  [[ -n "$selected" ]] || return 0
+  ble/widget/.replace-range 0 "${#_ble_edit_str}" "cd ${selected@Q}"
+    ble/widget/accept-line
+}
+ble-bind -m vi_nmap -f 'SP a a' my/fzf-cd-parent
+
+# ========================
+
+function ble/widget/my/_replace-and-accept {
+  local full=$1
+  ble/widget/.replace-range 0 "${#_ble_edit_str}" "$full"
+  _ble_edit_ind=${#full}
+  ble/widget/accept-line
+}
+
+function ble/widget/my/pipe_clipboard {
+  ble/widget/my/_replace-and-accept "$_ble_edit_str \
+    | wl-copy \
+    && hyprctl dispatch 'hl.dsp.focus({ workspace = \"1\" })' >/dev/null \
+    && ~/.config/scripts/util/hyprland"
+}
+ble-bind -m vi_nmap -f 'SP a b' my/pipe_clipboard
+
+function ble/widget/my/pipe_fzf {
+  ble/widget/my/_replace-and-accept "$_ble_edit_str | fzf"
+}
+ble-bind -m vi_nmap -f 'SP a f' my/pipe_fzf
+
+function ble/widget/my/add-sudo {
+  ble/widget/my/_replace-and-accept "sudo $_ble_edit_str"
+}
+ble-bind -m vi_nmap -f 'SP a s' my/add-sudo
+
+function ble/widget/my/pacman-remove {
+  ble/widget/my/_replace-and-accept "sudo pacman -Rns --noconfirm $_ble_edit_str"
+}
+ble-bind -m vi_nmap -f 'SP a r' my/pacman-remove
+
+function ble/widget/my/pacman-install {
+  ble/widget/my/_replace-and-accept "sudo pacman -S --needed --noconfirm $_ble_edit_str"
+}
+ble-bind -m vi_nmap -f 'SP a i' my/pacman-install
+
+function ble/widget/my/paru-remove {
+  ble/widget/my/_replace-and-accept "paru -Rns --noconfirm $_ble_edit_str"
+}
+ble-bind -m vi_nmap -f 'SP a R' my/paru-remove
+
+function ble/widget/my/paru-install {
+  ble/widget/my/_replace-and-accept "paru -S --needed --noconfirm $_ble_edit_str"
+}
+ble-bind -m vi_nmap -f 'SP a I' my/paru-install
+
+# ========================
+
+# forward-cword = e = <C-Right>
+# vi-command/backward-vword = backward-cword = b = <C-Left>
+# backward-sword = backward-uword = B
+# same goes for delete operations and auto_complete
+
+ble-bind -m vi_imap -f C-h 'vi-command/forward-vword'   # w
+function ble/widget/my/imap-bbw {
+  ble/widget/backward-cword
+  ble/widget/backward-cword
+  ble/widget/forward-cword
+}
+ble-bind -m vi_imap -f C-s 'my/imap-bbw'              # ge
+
+ble-bind -m vi_imap -f M-f 'forward-sword'               # E
+function ble/widget/my/imap-BBW {
+  ble/widget/backward-uword
+  ble/widget/backward-uword
+  ble/widget/forward-uword
+}
+ble-bind -m vi_imap -f 'M-a' 'my/imap-BBW'              # gE
+
+ble-bind -m vi_imap -f M-d 'vi-command/forward-uword' # W
+ble-bind -m vi_imap -f M-s 'vi-command/backward-uword' # B
+
+ble-bind -m vi_imap -f M-RET 'forward-eword'    # e respects _
+ble-bind -m vi_imap -f M-g 'backward-eword'    # b respects _
+
+ble-bind -m vi_imap -f M-x 'forward-fword' # E respects /
+ble-bind -m vi_imap -f M-e 'backward-fword' # B respects /
+
+ble-bind -m 'auto_complete' -f M-f 'auto_complete/@end insert-sword' # E
+ble-bind -m 'auto_complete' -f M-RET 'auto_complete/@end insert-eword' # e respects _
+ble-bind -m 'auto_complete' -f M-d 'auto_complete/insert-word' # W
+ble-bind -m 'auto_complete' -f M-x 'auto_complete/@end insert-fword' # E respects /
+ble-bind -m 'auto_complete' -f right 'forward-char'
+ble-bind -m 'auto_complete' -f end auto_complete/insert
+
+# ========================
+
+# kill-forward-vword doesnt exist but we can use forward-vword + kill-region
+function ble/widget/my/imap-d-w {
+  ble/widget/set-mark
+  ble/widget/vi-command/forward-vword
+  ble/widget/kill-region
+}
+ble-bind -m vi_imap -f C-S-h 'my/imap-d-w' # w
+
+function ble/widget/my/imap-d-bbw {
+  ble/widget/set-mark
+  ble/widget/backward-cword
+  ble/widget/backward-cword
+  ble/widget/forward-cword
+  ble/widget/kill-region
+}
+ble-bind -m vi_imap -f C-S-s 'my/imap-d-bbw' # ge
+
+ble-bind -m vi_imap -f C-S-f 'kill-forward-sword' # E
+function ble/widget/my/imap-d-BBW {
+  ble/widget/set-mark
+  ble/widget/backward-uword
+  ble/widget/backward-uword
+  ble/widget/forward-uword
+  ble/widget/kill-region
+}
+ble-bind -m vi_imap -f C-S-a 'my/imap-d-BBW' # gE
+
+ble-bind -m vi_imap -f M-C-h 'kill-forward-uword' # W
+ble-bind -m vi_imap -f M-C-e 'kill-backward-uword' # B
+
+ble-bind -m vi_imap -f C-u 'kill-forward-eword'    # e respects _
+ble-bind -m vi_imap -f M-C-S-right 'kill-backward-eword'    # b respects _
+
+ble-bind -m vi_imap -f M-C-S-up 'kill-forward-fword'  # E respects /
+ble-bind -m vi_imap -f M-C-S-down 'kill-backward-fword'  # B respects /
+
+# kill-sword = kill-uword
+ble-bind -m vi_imap -f M-, kill-eword # im and space before
+ble-bind -m vi_imap -f C-S-h kill-sword # iW and space before
+ble-bind -m vi_imap -f C-S-s kill-cword # iw and space before
+ble-bind -m vi_imap -f M-C-l kill-fword # sword respects /
+
+ble-bind -m vi_imap -f 'C-BS' 'kill-region-or kill-uword'
+ble-bind -m vi_nmap -f 'C-BS' 'kill-region-or kill-uword'
+
+ble-bind -m vi_imap -f C-a transpose-chars
+
+# ========================
+
+ble-import lib/vim-surround
+
+bleopt complete_auto_menu=1
+bleopt menu_prefix='\e[1;31m%d \e[m'
+bind 'set completion-ignore-case on'
+
+bleopt edit_magic_accept=sabbrev:verify-syntax
+bleopt exec_exit_mark=
+bleopt exec_errexit_mark=
+bleopt keymap_vi_mode_show=
+bleopt prompt_vi_mode_indicator=
+bleopt prompt_eol_mark=''
+
+ble-bind -m vi_cmap --cursor 5
+ble-bind -m vi_imap --cursor 5
+ble-bind -m vi_nmap --cursor 2
+ble-bind -m vi_omap --cursor 3
+ble-bind -m vi_smap --cursor 2
+ble-bind -m vi_xmap --cursor 2
+
+stty time 0
+bind 'set keyseq-timeout 1'
+
+ble-import -d integration/fzf-completion
+ble-import -d integration/fzf-key-bindings
+
+ble-face syntax_error=fg=203
+ble-face auto_complete=fg=245
+ble-face menu_complete_match=fg=166,bold
+
+ble-face filename_directory=fg=33
+ble-face filename_executable=fg=green
+ble-face filename_link=fg=teal
+ble-face filename_other=none
+ble-face filename_ls_colors=none
+ble-face filename_orphan=fg=16,bg=224
+ble-face filename_block=fg=yellow,bg=black
+ble-face filename_character=fg=231,bg=black
+ble-face filename_directory_sticky=fg=231,bg=26
+ble-face filename_pipe=fg=lime,bg=black
+ble-face filename_setgid=fg=black,bg=191
+ble-face filename_setuid=fg=black,bg=220
+ble-face filename_socket=fg=cyan,bg=black
+ble-face filename_url=fg=blue
+ble-face filename_warning=fg=red
+}
+
+blehook/eval-after-load keymap_vi blerc/vim-mode-hook
+
+_auto_ls_last_pwd=""
+function _auto_ls {
+  [ "$PWD" == "$_auto_ls_last_pwd" ] && return
+  ls --color=auto -A --group-directories-first
+  _auto_ls_last_pwd="$PWD"
+}
+blehook PRECMD+='_auto_ls'
+
+blehook history_message=

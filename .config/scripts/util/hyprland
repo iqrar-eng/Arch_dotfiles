@@ -1,0 +1,10 @@
+#!/usr/bin/env bash
+
+sleep 0.05
+
+class=$(hyprctl activewindow -j | jq -r '.class')
+if [[ "$class" == kitty* ]]; then
+  hyprctl dispatch 'hl.dsp.send_shortcut({ mods = "CTRL + SHIFT", key = "V" })' >/dev/null
+else
+  hyprctl dispatch 'hl.dsp.send_shortcut({ mods = "CTRL", key = "V" })' >/dev/null
+fi

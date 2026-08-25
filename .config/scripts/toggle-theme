@@ -1,0 +1,60 @@
+#!/usr/bin/env python3
+
+import os
+import glob
+import subprocess
+from pathlib import Path
+
+home = Path.home()
+kitty_dir = home / ".config/kitty"
+current = kitty_dir / "current-theme.conf"
+
+resolved = os.path.realpath(current)
+uid = os.getuid()
+
+is_dark = "dark" in resolved
+next_theme = kitty_dir / "themes" / ("light.conf" if is_dark else "dark.conf")
+
+# Kitty
+if current.is_symlink() or current.exists():
+    current.unlink()
+current.symlink_to(next_theme)
+
+result = subprocess.run(
+    ["kitty", "@", "--to", "unix:@mykitty", "load-config"],
+    capture_output=True
+)
+if result.returncode != 0:
+    subprocess.run(["pkill", "-USR1", "-x", "kitty"])
+
+# tmux
+tmux_bg = "#a6e3a1" if is_dark else "#2e465e"
+tmux_fg = "#1e1e2e" if is_dark else "#eff1f5"
+subprocess.run(
+    ["tmux", "set", "-g", "mode-style", f"bg={tmux_bg}"],
+    capture_output=True
+)
+
+# GNOME
+gnome_scheme = "prefer-light" if is_dark else "prefer-dark"
+subprocess.run([
+    "gsettings", "set", "org.gnome.desktop.interface",
+    "color-scheme", gnome_scheme
+])
+
+# CopyQ
+copyq_theme = home / ".config/copyq/themes" / ("light.ini" if is_dark else "dark.ini")
+subprocess.run(["copyq", "eval", f"loadTheme('{copyq_theme}')"])
+
+# Neovim
+scheme = "catppuccin-latte" if is_dark else "catppuccin-mocha"
+nvim_state_dir = home / ".local/share/nvim"
+nvim_state_dir.mkdir(parents=True, exist_ok=True)
+(nvim_state_dir / "colorscheme").write_text(scheme + "\n")
+
+for sock in glob.glob(f"/run/user/{uid}/nvim.*.*"):
+    if os.path.exists(sock):
+        subprocess.run(
+            ["nvim", "--server", sock, "--remote-send", f"<Cmd>colorscheme {scheme}<CR>"],
+            capture_output=True
+        )

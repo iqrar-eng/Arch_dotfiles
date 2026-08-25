@@ -1,0 +1,8 @@
+#!/usr/bin/env bash
+
+{
+  rg --color=always "ble-bind" /home/iqrar/.blerc
+  rg --color=always -e "alias" -e "--bind" ~/.bashrc
+  rg --color=always "bind" /home/iqrar/.config/tmux/tmux.conf
+  rg --color=always "map" /home/iqrar/.config/kitty/kitty_terminal.conf
+} | fzf --ansi

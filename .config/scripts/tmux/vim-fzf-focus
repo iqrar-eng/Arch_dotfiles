@@ -1,0 +1,20 @@
+#!/usr/bin/env bash
+
+set -euo pipefail
+sel=$1
+if ! abs=$(realpath -e -- "$sel" 2>/dev/null); then
+  exit 1
+fi
+uid=$(id -u)
+server=""
+for s in /run/user/"$uid"/nvim.*.*; do
+  [[ -S $s ]] && server=$s && break
+done
+
+if [[ -n $server ]]; then
+  nvim --server "$server" --remote-send ":e ${abs}<CR>"
+else
+  nvim -- "$abs"
+fi
+
+hyprctl dispatch 'hl.dsp.focus({ workspace = "2" })' >/dev/null

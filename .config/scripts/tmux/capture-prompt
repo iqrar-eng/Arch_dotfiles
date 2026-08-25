@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+mode="${1:?usage: capture-prompt.sh current|previous}"
+
+if [[ "$mode" == "current" ]]; then
+  buf=$(tmux capture-pane -pJ -S -3200 | awk '
+    /❯/ { buf=$0; n=1; next }
+    n  { buf = buf ORS $0 }
+    END { print buf }
+    ')
+else
+  buf=$(tmux capture-pane -pJ -S -3200 | awk '
+    /❯/ { count++; starts[count]=NR }
+    { lines[NR]=$0 }
+    END {
+    if (count >= 2) {
+    s = starts[count-1]
+    e = starts[count] - 1
+    for (i = s; i <= e; i++) print lines[i]
+    }
+    }
+    ')
+fi
+
+printf '%s' "$buf" | wl-copy
+hyprctl dispatch "hl.dsp.focus({ workspace = "1" })" >/dev/null
+~/.config/scripts/util/hyprland

@@ -1,0 +1,13 @@
+#!/usr/bin/env bash
+
+mode="${1:?usage: capture-context.sh view|buffer}"
+FILE="/tmp/ai_context_$(date +time_%Y-%m-%dT%H-%M-%S).txt"
+if [[ "$mode" == "buffer" ]]; then
+    tmux capture-pane -pJ -S -32768 > "$FILE"
+else
+    tmux capture-pane -pJ > "$FILE"
+fi
+copyq eval -- "copy(\"text/uri-list\",\"file://$FILE\",\"x-special/gnome-copied-files\",\"copy\nfile://$FILE\")" >/dev/null
+
+hyprctl dispatch "hl.dsp.focus({ workspace = "1" })" >/dev/null
+~/.config/scripts/util/hyprland
