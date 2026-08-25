@@ -1,5 +1,6 @@
 #!/usr/bin/env bash
-set -euo pipefail
+
+DOTFILES="$HOME/dotfiles"
 
 sources=(
   "$HOME/.config/starship.toml"
@@ -9,7 +10,9 @@ sources=(
   # "$HOME/projects"
   # "$HOME/.src"
   # "$HOME/backup"
-  "$HOME/.config/copyq"
+  "$HOME/.config/copyq/themes"
+  "$HOME/.config/copyq/copyq-commands.ini"
+  "$HOME/.config/copyq/copyq.conf"
   "$HOME/.config/scripts"
   # "$HOME/.ssh"
   "$HOME/.config/tmux/tmux.conf"
@@ -41,12 +44,12 @@ done
 
 # keyd needs sudo separately since /etc isn't user-writable
 if [[ -e /etc/keyd/default.conf && ! -L /etc/keyd/default.conf ]]; then
-    sudo mv /etc/keyd/default.conf "$DOTFILES/etc/keyd/default.conf"
-    sudo chown "$USER:$USER" "$DOTFILES/etc/keyd/default.conf"
-    sudo ln -sfn "$DOTFILES/etc/keyd/default.conf" /etc/keyd/default.conf
-    echo "linked: /etc/keyd/default.conf -> $DOTFILES/etc/keyd/default.conf"
+  sudo mv /etc/keyd/default.conf "$DOTFILES/etc/keyd/default.conf"
+  sudo chown "$USER:$USER" "$DOTFILES/etc/keyd/default.conf"
+  sudo ln -sfn "$DOTFILES/etc/keyd/default.conf" /etc/keyd/default.conf
+  echo "linked: /etc/keyd/default.conf -> $DOTFILES/etc/keyd/default.conf"
 else
-    echo "skip (already linked or missing): /etc/keyd/default.conf"
+  echo "skip (already linked or missing): /etc/keyd/default.conf"
 fi
 
 echo "Backup complete: $DOTFILES"
