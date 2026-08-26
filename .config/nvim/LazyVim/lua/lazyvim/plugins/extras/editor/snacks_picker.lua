@@ -541,18 +541,15 @@ return {
       },
     },
     keys = {
-      -- ── grepFile Specific Dotfiles ──────────────────────────────────────
       { "<leader>ay", function() LazyVim.pick("grep", { dirs = { "/etc/keyd/default.conf" } })() end, desc = "grepFile keyd config", mode = { "n", "x" } }, -- ── Find / Grep by Directory ──────────────────────────────────────────────
       { "<C-L>",     LazyVim.pick("files"), desc = "Find Files (root dir)", mode = { "n", "x" } },
+      { "<BS><Up>", LazyVim.pick("files", { root = false }), desc = "Find Files (cwd)", mode = { "n", "x" } },
       { "<BS><PageDown>", LazyVim.pick("grep"),  desc = "Grep (root dir)",       mode = { "n", "x" } },
       { "<BS><Home>", LazyVim.pick("grep_word"), desc = "Word/Selection (root dir)", mode = { "n", "x" } },
-      { "<BS><Up>", LazyVim.pick("files", { root = false }), desc = "Find Files (cwd)", mode = { "n", "x" } },
-      { "<BS><PageUp>", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)", mode = { "n", "x" } },
       { "<BS><End>", LazyVim.pick("grep_word", { root = false }), desc = "Word/Selection (cwd)", mode = { "n", "x" } },
-      { "<leader>ls", LazyVim.pick("files", { cwd = vim.fn.expand("~/.config/scripts") }), desc = "Find Files scripts", mode = { "n", "x" } },
-      { "<leader>lS", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.config/scripts") }), desc = "Grep scripts", mode = { "n", "x" } },
-      { "<leader>lv", LazyVim.pick("files", { cwd = vim.fn.expand("~/.config/nvim") }), desc = "Find Files nvim", mode = { "n", "x" } },
-      { "<leader>lV", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.config/nvim") }), desc = "Grep nvim", mode = { "n", "x" } },
+      { "<BS><PageUp>", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)", mode = { "n", "x" } },
+      { "<leader>ls", LazyVim.pick("files", { cwd = vim.fn.expand("~/dotfiles/") }), desc = "Find Files dotfiles", mode = { "n", "x" } },
+      { "<leader>lS", LazyVim.pick("grep", { cwd = vim.fn.expand("~/dotfiles/") }), desc = "Grep dotfiles", mode = { "n", "x" } },
       { "<leader>lq", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/prisma/apps/docs/content/docs/") }), desc = "Find Files prisma", mode = { "n", "x" } },
       { "<leader>lQ", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/prisma/apps/docs/content/docs/") }), desc = "Grep prisma", mode = { "n", "x" } },
       { "<leader>lb", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/better-auth/docs/content/docs") }), desc = "Find Files better-auth", mode = { "n", "x" } },
@@ -571,7 +568,7 @@ return {
       { "<leader>lR", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/react/src/content/reference/") }), desc = "Grep react", mode = { "n", "x" } },
       { "<leader>l<CR>", LazyVim.pick("files", { cwd = vim.fn.expand("~/.local/share/nvim/lazy/") }), desc = "Find Files react", mode = { "n", "x" } },
       { "<leader>l<S-CR>", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.local/share/nvim/lazy/") }), desc = "Grep react", mode = { "n", "x" } },
-      -- ── Core Navigation ──────────────────────────────────────────────────────
+
       { "<BS><Down>", LazyVim.pick("buffers"), desc = "Find Files Buffers", mode = { "n", "x" } },
       { "<BS><Left>", LazyVim.pick("grep_buffers"), desc = "Grep Buffers", mode = { "n", "x" } },
       { "<C-F>", function() LazyVim.pick("grep", { dirs = { vim.api.nvim_buf_get_name(0) } })() end, desc = "Grep Current File", mode = { "n", "x" }, },
@@ -601,7 +598,7 @@ return {
       { "<BS>=", LazyVim.pick("diagnostics"), desc = "Diagnostics", mode = { "n", "x" } },
       { "<BS>+", LazyVim.pick("diagnostics_buffer"), desc = "Buffer Diagnostics", mode = { "n", "x" } },
       { "<BS>.", LazyVim.pick(function(opts) require("aerial").snacks_picker(opts) end), desc = "aerial picker", mode = { "n", "x" } },
-      -- git
+
       { "<leader>hl", function() Snacks.picker.git_log({ cwd = LazyVim.root.git() }) end, desc = "Git Log" },
       { "<leader>hL", function() Snacks.picker.git_log_line({ cwd = LazyVim.root.git() }) end, desc = "Git Log Line" },
       { "<leader>hs", function() Snacks.picker.git_status({ cwd = LazyVim.root.git() }) end, desc = "Git Status" },
@@ -609,7 +606,7 @@ return {
       { "<leader>hd", function() Snacks.picker.git_diff({ cwd = LazyVim.root.git() }) end, desc = "Git Diff (Hunks)" },
       { "<leader>hD", function() Snacks.picker.git_diff({ cwd = LazyVim.root.git(), base = "origin" }) end, desc = "Git Diff (Origin)" },
       { "<leader>hf", function() Snacks.picker.git_log_file({ cwd = LazyVim.root.git() }) end, desc = "Git Log File" },
-      -- lazygit
+
       { "<leader>hg", function() Snacks.lazygit({ cwd = LazyVim.root.git() }) end,           desc = "Lazygit" },
       { "<leader>hG", function() Snacks.lazygit.log_file({ cwd = LazyVim.root.git() }) end,  desc = "Lazygit file log" },
       { "<leader>hY", function() Snacks.lazygit.log({ cwd = LazyVim.root.git() }) end,       desc = "Lazygit log" },

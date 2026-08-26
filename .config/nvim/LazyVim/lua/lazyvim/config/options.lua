@@ -70,7 +70,6 @@ vim.opt.signcolumn = "yes"
 vim.opt.isfname:append("@-@")
 vim.opt.updatetime = 50
 vim.opt.guicursor = "n:block25,c:ver25,i-ci-ve:ver25,r-cr:hor20,o:hor50,a:blinkwait175-blinkoff150-blinkon175"
-vim.opt.whichwrap:append("<>[]hl")
 vim.o.autowriteall = true
 vim.lsp.inline_completion.enable(true)
 vim.o.statusline = "%#WinSeparator#%{%repeat('─', winwidth(0))%}%*"

@@ -179,7 +179,7 @@ hl.bind("SHIFT + CTRL + ALT + SUPER + N", hl.dsp.exec_cmd('grim -g "$(slurp)" - 
 local function paste_slot(n)
 	return function()
 		hl.dispatch(hl.dsp.exec_cmd("copyq select " .. n))
-		hl.dispatch(hl.dsp.exec_cmd("~/.config/scripts/util/hyprland"))
+		hl.dispatch(hl.dsp.exec_cmd("~/dotfiles/.config/scripts/util/hyprland"))
 	end
 end
 
@@ -188,15 +188,15 @@ hl.bind("SHIFT + CTRL + ALT + SUPER + H", paste_slot(2))
 hl.bind("SHIFT + CTRL + ALT + SUPER + I", paste_slot(3))
 
 hl.bind("SHIFT + CTRL + ALT + SUPER + S", hl.dsp.exec_cmd("systemctl suspend"))
-hl.bind("SHIFT + CTRL + ALT + SUPER + O", hl.dsp.exec_cmd("~/.config/scripts/poweroff"))
-hl.bind("SHIFT + CTRL + ALT + SUPER + P", hl.dsp.exec_cmd("~/.config/scripts/logout"))
+hl.bind("SHIFT + CTRL + ALT + SUPER + O", hl.dsp.exec_cmd("~/dotfiles/.config/scripts/poweroff"))
+hl.bind("SHIFT + CTRL + ALT + SUPER + P", hl.dsp.exec_cmd("~/dotfiles/.config/scripts/logout"))
 
-hl.bind("SHIFT + CTRL + ALT + SUPER + A", hl.dsp.exec_cmd("~/.config/scripts/clipboard-slime-core --execute --jump"))
-hl.bind("SHIFT + CTRL + ALT + SUPER + B", hl.dsp.exec_cmd("~/.config/scripts/clipboard-slime-core --execute"))
-hl.bind("SHIFT + CTRL + ALT + SUPER + C", hl.dsp.exec_cmd("~/.config/scripts/clipboard-slime-core --jump"))
-hl.bind("SHIFT + CTRL + ALT + SUPER + F", hl.dsp.exec_cmd("~/.config/scripts/clipboard-run-and-copy"))
+hl.bind("SHIFT + CTRL + ALT + SUPER + A", hl.dsp.exec_cmd("~/dotfiles/.config/scripts/clipboard-slime-core --execute --jump"))
+hl.bind("SHIFT + CTRL + ALT + SUPER + B", hl.dsp.exec_cmd("~/dotfiles/.config/scripts/clipboard-slime-core --execute"))
+hl.bind("SHIFT + CTRL + ALT + SUPER + C", hl.dsp.exec_cmd("~/dotfiles/.config/scripts/clipboard-slime-core --jump"))
+hl.bind("SHIFT + CTRL + ALT + SUPER + F", hl.dsp.exec_cmd("~/dotfiles/.config/scripts/clipboard-run-and-copy"))
 
-hl.bind("SHIFT + CTRL + ALT + SUPER + M", hl.dsp.exec_cmd("~/.config/scripts/toggle-theme"))
+hl.bind("SHIFT + CTRL + ALT + SUPER + M", hl.dsp.exec_cmd("~/dotfiles/.config/scripts/toggle-theme"))
 
 hl.bind(
 	"SHIFT + CTRL + ALT + SUPER + U",

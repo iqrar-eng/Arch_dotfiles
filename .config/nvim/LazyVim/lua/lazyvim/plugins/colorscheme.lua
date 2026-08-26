@@ -159,6 +159,8 @@ return {
         end,
         all = function(colors)
           return {
+            SnacksPickerPathHidden = { link = "SnacksPicker" },
+
             FlashLabel = { link = "Substitute" },
             FlashCurrent = { link = "IncSearch" },
             FlashMatch = { link = "Search" },

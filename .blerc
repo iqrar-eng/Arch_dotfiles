@@ -217,7 +217,7 @@ function ble/widget/my/pipe_clipboard {
   ble/widget/my/_replace-and-accept "$_ble_edit_str \
     | wl-copy \
     && hyprctl dispatch 'hl.dsp.focus({ workspace = \"1\" })' >/dev/null \
-    && ~/.config/scripts/util/hyprland"
+    && ~/dotfiles/.config/scripts/util/hyprland"
 }
 ble-bind -m vi_nmap -f 'SP a b' my/pipe_clipboard
 

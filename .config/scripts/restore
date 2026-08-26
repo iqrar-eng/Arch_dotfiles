@@ -1,0 +1,102 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+sudo pacman -S --needed --noconfirm firefox nautilus fd ripgrep starship zoxide neovim vim \
+  brightnessctl jq make nodejs npm power-profiles-daemon vlc \
+  copyq wl-clipboard \
+  grim slurp satty \
+  noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra ttf-jetbrains-mono-nerd \
+  git github-cli lazygit \
+  man-db man-pages
+
+sudo man-db
+
+# https://github.com/morganamilo/paru#installation
+sudo pacman -S --needed base-devel
+git clone https://aur.archlinux.org/paru.git paru
+cd paru
+makepkg -si
+
+rm -rf paru
+
+paru -S --needed --noconfirm blesh-git
+
+# ========================
+
+git clone https://github.com/iqrar-eng/dotfiles ~/dotfiles
+
+ln -sfn "$HOME/dotfiles/.blerc" "$HOME/.blerc"
+ln -sfn "$HOME/dotfiles/.bashrc" "$HOME/.bashrc"
+ln -sfn "$HOME/dotfiles/.bash_profile" "$HOME/.bash_profile"
+ln -sfn "$HOME/dotfiles/.config/starship.toml" "$HOME/.config/starship.toml"
+
+mkdir -p "$HOME/.config/copyq/"
+ln -sfn "$HOME/dotfiles/.config/copyq/themes" "$HOME/.config/copyq/themes"
+ln -sfn "$HOME/dotfiles/.config/copyq/copyq-commands.ini" "$HOME/.config/copyq/copyq-commands.ini"
+ln -sfn "$HOME/dotfiles/.config/copyq/copyq.conf" "$HOME/.config/copyq/copyq.conf"
+
+ln -sfn "$HOME/dotfiles/.config/kitty" "$HOME/.config/kitty"
+ln -sfn "$HOME/dotfiles/.config/nvim" "$HOME/.config/nvim"
+ln -sfn "$HOME/dotfiles/.config/mimeapps.list" "$HOME/.config/mimeapps.list"
+
+mkdir -p "$HOME/.config/tmux"
+ln -sfn "$HOME/dotfiles/.config/tmux/tmux.conf" "$HOME/.config/tmux/tmux.conf"
+
+sudo chmod 777 "$HOME/dotfiles/etc/keyd/default.conf"
+sudo ln -sfn "$HOME/dotfiles/etc/keyd/default.conf" "/etc/keyd/default.conf"
+
+sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
+sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null << 'EOF'
+[Service]
+ExecStart=
+ExecStart=-/usr/bin/agetty --autologin iqrar --noclear %I $TERM
+EOF
+sudo systemctl daemon-reload
+sudo systemctl restart getty@tty1
+loginctl terminate-user $USER
+
+# ========================
+
+mkdir -p ~/.src
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/prisma/web.git prisma
+git -C ~/.src/prisma sparse-checkout set --no-cone \
+  'apps/docs/content/docs/**/*.mdx' \
+  '!apps/docs/content/docs/**/v6/**'
+git -C ~/.src/prisma checkout
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/better-auth/better-auth.git better-auth
+git -C ~/.src/better-auth sparse-checkout set --no-cone \
+  'docs/content/docs/**/*.mdx'
+git -C ~/.src/better-auth checkout
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/vercel/next.js.git next.js
+git -C ~/.src/next.js sparse-checkout set --no-cone \
+  'docs/01-app'
+git -C ~/.src/next.js checkout
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/nodejs/node.git node
+git -C ~/.src/node sparse-checkout set --no-cone \
+  'doc/api'
+git -C ~/.src/node checkout
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/mdn/content.git mdn
+git -C ~/.src/mdn sparse-checkout set --no-cone \
+  'files/en-us/web/api' \
+  'files/en-us/web/http' \
+  'files/en-us/web/javascript'
+git -C ~/.src/mdn checkout
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/reactjs/react.dev.git react
+git -C ~/.src/react sparse-checkout set --no-cone \
+  'src/content/reference'
+git -C ~/.src/react checkout
+
+git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/typescript-cheatsheets/react.git typescript-cheatsheets-react
+git -C ~/.src/typescript-cheatsheets-react sparse-checkout set --no-cone \
+  'docs'
+git -C ~/.src/typescript-cheatsheets-react checkout
+rm ~/.src/react/src/content/reference/_basic
+rm ~/.src/react/src/content/reference/_api
+ln -s ~/.src/typescript-cheatsheets-react/docs/basic/getting-started/ ~/.src/react/src/content/reference/_basic
+ln -s ~/.src/typescript-cheatsheets-react/docs/reference/ ~/.src/react/src/content/reference/_api

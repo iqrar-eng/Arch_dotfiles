@@ -51,7 +51,6 @@ return {
         },
       },
     },
-
     keys = {
       {
         "<leader>et",
@@ -71,7 +70,6 @@ return {
         desc = "Toggle NvimTree (find file)",
       },
     },
-
     config = function(_, opts)
       require("snacks").setup(opts)
       vim.api.nvim_create_autocmd("BufEnter", {
@@ -86,7 +84,6 @@ return {
           if file == "" or not vim.uv.fs_stat(file) then
             return
           end
-          -- resolve symlinks so buffer path and explorer tree paths agree
           file = vim.uv.fs_realpath(file) or file
 
           local explorer = Snacks.picker.get({ source = "explorer" })[1]
@@ -100,20 +97,28 @@ return {
             if explorer:cwd() ~= root then
               explorer:set_cwd(root)
             end
-            explorer:find({ target = file })
+            require("snacks.explorer").reveal({ file = file })
           end)
         end,
       })
+
       vim.api.nvim_create_autocmd("VimEnter", {
         callback = function()
           if #vim.api.nvim_tabpage_list_wins(0) >= 2 then
             return
           end
           local buf = vim.api.nvim_get_current_buf()
-          local root = LazyVim.root.get({ buf = buf })
-          root = vim.uv.fs_realpath(root) or root
-          Snacks.explorer({ cwd = root, focus = false })
+          local file = vim.api.nvim_buf_get_name(buf)
+          file = (file ~= "" and vim.uv.fs_realpath(file)) or file
           require("lazy").update({ show = false })
+          if file ~= "" then
+            vim.schedule(function()
+              local picker = require("snacks.explorer").reveal({ file = file })
+              if picker then
+                picker.opts.enter = false
+              end
+            end)
+          end
         end,
       })
     end,

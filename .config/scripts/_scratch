@@ -1,0 +1,11 @@
+#!/usr/bin/env bash
+
+mv "$HOME/.config/hypr" "$HOME/dotfiles/.config/hypr" \
+  && ln -sfn "$HOME/dotfiles/.config/hypr" "$HOME/.config/hypr" \
+  && git -C "$HOME/dotfiles" add "$HOME/dotfiles/.config/hypr" \
+  && git -C "$HOME/dotfiles" commit -m "add dotfile/dir"
+
+# "$HOME/projects"
+# "$HOME/backup"
+
+dunst

@@ -23,4 +23,4 @@ fi
 
 printf '%s' "$buf" | wl-copy
 hyprctl dispatch "hl.dsp.focus({ workspace = "1" })" >/dev/null
-~/.config/scripts/util/hyprland
+~/dotfiles/.config/scripts/util/hyprland

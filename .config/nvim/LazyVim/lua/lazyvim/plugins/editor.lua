@@ -8,7 +8,7 @@ return {
         function()
           local ext = vim.bo.buftype == "" and vim.fn.expand("%:e")
           require("grug-far").open({
-            prefills = { paths = LazyVim.root.get(), flags = "--ignore-case --fixed-strings" },
+            prefills = { paths = LazyVim.root.get(), flags = "--ignore-case --fixed-strings --hidden" },
           })
         end,
         mode = { "n", "x" },
@@ -19,7 +19,7 @@ return {
         "<leader>az",
         function()
           require("grug-far").open({
-            prefills = { paths = vim.fn.expand("%"), flags = "--ignore-case --fixed-strings" },
+            prefills = { paths = vim.fn.expand("%"), flags = "--ignore-case --fixed-strings --hidden" },
           })
         end,
         mode = { "n", "x" },

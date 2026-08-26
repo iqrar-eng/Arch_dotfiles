@@ -258,7 +258,7 @@ end, { silent = true })
 
 -- ========================
 
-vim.keymap.set("n", "<leader>a}", function()
+vim.keymap.set("n", "<leader>a_", function()
   local path = vim.api.nvim_buf_get_name(0)
   if path == "" then
     return
@@ -274,7 +274,7 @@ vim.keymap.set("n", "<leader>a}", function()
   vim.fn.jobstart([[hyprctl dispatch "hl.dsp.focus({ workspace = "3" })" >/dev/null]], { detach = true })
 end, { desc = "Open tmux window N parent dir" })
 
-vim.keymap.set("n", "<leader>a{", function()
+vim.keymap.set("n", "<leader>ae", function()
   local path = vim.api.nvim_buf_get_name(0)
   if path == "" then
     return
@@ -293,7 +293,9 @@ vim.keymap.set("n", "<leader>ab", function()
   if vim.v.count > 0 then
     modifier = modifier .. string.rep(":h", vim.v.count)
   end
-  vim.fn.system("wl-copy", vim.fn.expand("%" .. modifier))
+  local path = vim.fn.expand("%" .. modifier)
+  vim.fn.system("wl-copy", path)
+  vim.notify(path, vim.log.levels.INFO)
 end, { desc = "Copy relative path N levels up" })
 
 vim.keymap.set("n", "<leader>au", function()
@@ -301,7 +303,9 @@ vim.keymap.set("n", "<leader>au", function()
   if vim.v.count > 0 then
     modifier = modifier .. string.rep(":h", vim.v.count)
   end
-  vim.fn.system("wl-copy", vim.fn.expand("%" .. modifier))
+  local path = vim.fn.expand("%" .. modifier)
+  vim.fn.system("wl-copy", path)
+  vim.notify(path, vim.log.levels.INFO)
 end, { desc = "Copy absolute path N levels up" })
 
 vim.keymap.set("n", "<C-S-B>", function()
