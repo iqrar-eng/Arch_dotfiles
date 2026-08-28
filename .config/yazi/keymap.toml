@@ -1,0 +1,125 @@
+# https://github.com/sxyazi/yazi/blob/main/yazi-config/preset/keymap-default.toml
+[mgr]
+
+prepend_keymap = [
+  { on = [ "M", "m" ], run = "plugin gvfs -- select-then-mount --jump", desc = "Select device to mount and jump to its mount point" },
+  { on = [ "M", "R" ], run = "plugin gvfs -- remount-current-cwd-device", desc = "Remount device under cwd" },
+  { on = [ "M", "u" ], run = "plugin gvfs -- select-then-unmount", desc = "Select device then unmount" },
+  { on = [ "M", "U" ], run = "plugin gvfs -- select-then-unmount --eject", desc = "Select device then eject" },
+  { on = [ "M", "a" ], run = "plugin gvfs -- add-mount", desc = "Add a GVFS mount URI" },
+  { on = [ "M", "e" ], run = "plugin gvfs -- edit-mount", desc = "Edit a GVFS mount URI" },
+  { on = [ "M", "r" ], run = "plugin gvfs -- remove-mount", desc = "Remove a GVFS mount URI" },
+  { on = [ "g", "m" ], run = "plugin gvfs -- jump-to-device", desc = "Select device then jump to its mount point" },
+  { on = [ "`", "`" ], run = "plugin gvfs -- jump-back-prev-cwd", desc = "Jump back to the position before jumped to device" },
+  { on = [ "M", "t" ], run = "plugin gvfs -- automount-when-cd", desc = "Enable automount when cd to device under cwd" },
+  { on = [ "M", "T" ], run = "plugin gvfs -- automount-when-cd --disabled", desc = "Disable automount when cd to device under cwd" },
+
+  { on = [ "g", "i" ], run = '''shell 'bash ~/dotfiles/.config/scripts/yazi/goto-mtp "Internal storage/iqrar/"' --confirm''', desc = "Go to Internal storage" },
+
+	# Hop around
+	{ on = "l",      run = "arrow prev", desc = "Previous file" },
+	{ on = "h",      run = "arrow next", desc = "Next file" },
+	{ on = "<C-Up>",   run = "arrow prev", desc = "Previous file" },
+	{ on = "<C-Down>", run = "arrow next", desc = "Next file" },
+
+	{ on = "<PageUp>",     run = "arrow -50%", desc = "Move cursor up one page" },
+	{ on = "<PageDown>",   run = "arrow 50%",  desc = "Move cursor down one page" },
+
+	# Navigation
+	{ on = "e", run = "leave", desc = "Back to the parent directory" },
+	{ on = "n", run = "enter", desc = "Enter the child directory" },
+
+	# Toggle
+	{ on = "<Tab>", run = [ "toggle", "arrow 1" ], desc = "Toggle the current selection state" },
+	{ on = "<S-Tab>", run = [ "toggle", "arrow -1" ], desc = "Toggle the current selection state" },
+
+	# Spotting
+	{ on = "<Space>", run = "spot", desc = "Spot hovered file" },
+
+	# Find
+	{ on = "k", run = "find_arrow",              desc = "Next found" },
+	{ on = "K", run = "find_arrow --previous",   desc = "Previous found" },
+]
+
+[tasks]
+
+prepend_keymap = [
+	{ on = "l", run = "arrow prev", desc = "Previous task" },
+	{ on = "h", run = "arrow next", desc = "Next task" },
+
+	{ on = "<C-Up>",   run = "arrow prev", desc = "Previous task" },
+	{ on = "<C-Down>", run = "arrow next", desc = "Next task" },
+]
+
+[spot]
+
+prepend_keymap = [
+	{ on = "l", run = "arrow prev", desc = "Previous line" },
+	{ on = "h", run = "arrow next", desc = "Next line" },
+	{ on = "e", run = "swipe prev", desc = "Swipe to previous file" },
+	{ on = "n", run = "swipe next", desc = "Swipe to next file" },
+
+	{ on = "<C-Up>",    run = "arrow prev", desc = "Previous line" },
+	{ on = "<C-Down>",  run = "arrow next", desc = "Next line" },
+]
+
+[pick]
+
+prepend_keymap = [
+	{ on = "l", run = "arrow prev", desc = "Previous option" },
+	{ on = "h", run = "arrow next", desc = "Next option" },
+
+	{ on = "<C-Up>",   run = "arrow prev", desc = "Previous option" },
+	{ on = "<C-Down>", run = "arrow next", desc = "Next option" },
+]
+
+[input]
+
+prepend_keymap = [
+	# Character-wise movement
+	{ on = "e",       run = "move -1", desc = "Move back a character" },
+	{ on = "n",       run = "move 1",  desc = "Move forward a character" },
+	{ on = "m",         run = "forward --end-of-word",      desc = "Move forward to the end of the current or next word" },
+	{ on = "M",         run = "forward wide --end-of-word", desc = "Move forward to the end of the current or next WORD" },
+
+	# Kill
+	{ on = "<S-Home>",         run = "kill bol",      desc = "Kill backwards to the BOL" },
+	{ on = "<S-End>",         run = "kill eol",      desc = "Kill forwards to the EOL" },
+
+	{ on = "<C-z>",     run = "undo",             desc = "undo" },
+	{ on = "<C-S-z>", run = "redo",                     desc = "redo" },
+
+	# History
+	{ on = "l",      run = "recall -1", desc = "Recall previous input" },
+	{ on = "h",      run = "recall 1",  desc = "Recall next input" },
+	{ on = "<C-Up>",   run = "recall -1", desc = "Recall previous input" },
+	{ on = "<C-Down>", run = "recall 1",  desc = "Recall next input" },
+]
+
+[confirm]
+
+prepend_keymap = [
+	{ on = "l", run = "arrow prev", desc = "Previous line" },
+	{ on = "h", run = "arrow next", desc = "Next line" },
+
+	{ on = "<C-Up>",   run = "arrow prev", desc = "Previous line" },
+	{ on = "<C-Down>", run = "arrow next", desc = "Next line" },
+]
+
+[cmp]
+
+prepend_keymap = [
+	{ on = "<C-Up>",   run = "arrow prev", desc = "Previous item" },
+	{ on = "<C-Down>", run = "arrow next", desc = "Next item" },
+]
+
+[help]
+
+prepend_keymap = [
+	# Navigation
+	{ on = "l", run = "arrow prev", desc = "Previous line" },
+	{ on = "h", run = "arrow next", desc = "Next line" },
+
+	{ on = "<C-Up>",   run = "arrow prev", desc = "Previous line" },
+	{ on = "<C-Down>", run = "arrow next", desc = "Next line" },
+]
