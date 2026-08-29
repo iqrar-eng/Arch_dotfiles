@@ -259,15 +259,19 @@ return {
       end,
     },
   },
-{
-  "tpope/vim-fugitive",
-  event = "VeryLazy",  -- needs quotes, it's a string
-  keys = {
-    { "<leader>gc", function()
-        vim.cmd("Git add -A")
-        vim.cmd("Git commit -m 'add files/dirs'")
-      end,
-      desc = "Git stage all and commit" },
+
+  {
+    "tpope/vim-fugitive",
+    event = "VeryLazy",
+    keys = {
+      {
+        "<leader>ha",
+        function()
+          vim.cmd("Git add -A")
+          vim.cmd("Git commit -m 'add files/dirs'")
+        end,
+        desc = "Git stage all and commit",
+      },
+    },
   },
-},
 }

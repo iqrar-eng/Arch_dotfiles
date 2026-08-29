@@ -9,7 +9,7 @@ local nvim = my_kitty .. "--class kitty-nvim" .. my_nvim
 local terminal = my_kitty
 	.. "--config ~/dotfiles/.config/kitty/terminal.conf --class kitty-terminal sh -c 'tmux attach 2>/dev/null || tmux new-session'"
 local clipboard = "copyq --start-server show"
-local fileManager = my_kitty .. "--class kitty-yazi -e yazi"
+local fileManager = "env YAZI_CONFIG_HOME=/home/iqrar/dotfiles/.config/yazi" .. my_kitty .. "--class kitty-yazi -e yazi"
 
 ------------------------
 ---- RULES ---
