@@ -1,8 +1,3 @@
-vim.keymap.set("n", "<leader>gc", function()
-  vim.cmd("Git add -A")
-  vim.cmd("Git commit -m 'add files/dirs'")
-end, { desc = "Git stage all and commit" })
-
 local function yank_motion_text(type)
   local rv, rt = vim.fn.getreg('"'), vim.fn.getregtype('"')
   if type == "line" then
