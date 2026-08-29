@@ -68,11 +68,7 @@ for p in "${paths[@]}"; do
   mkdir -p "$HOME/dotfiles/$(dirname "$p")" \
   && mv "$HOME/$p" "$HOME/dotfiles/$p" \
   && ln -sfn "$HOME/dotfiles/$p" "$HOME/$p"
-  && ln -sfn "/home/iqrar/dotfiles/.config/xdg-desktop-portal" "/home/iqrar/.config/xdg-desktop-portal"
-  && ln -sfn "/home/iqrar/dotfiles/.config/xdg-desktop-portal-termfilechooser" "/home/iqrar/.config/xdg-desktop-portal-termfilechooser"
 done
-git -C "$HOME/dotfiles" add .
-git -C "$HOME/dotfiles" commit -m "add dotfiles/dirs"
 
 # restore
 # ========================
