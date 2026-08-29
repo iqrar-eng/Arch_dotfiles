@@ -178,31 +178,8 @@ function ble/widget/my/_fzf-cd-from {
 function ble/widget/my/fzf-cd-home    { ble/widget/my/_fzf-cd-from "$HOME";           }
 ble-bind -m vi_nmap -f 'SP l' my/fzf-cd-home
 
-function ble/widget/my/fzf-cd-root-dir {
-  local root
-  root=$(git rev-parse --show-toplevel 2>/dev/null) || root="$PWD"
-  ble/widget/my/_fzf-cd-from "$root"
-}
-ble-bind -m vi_nmap -f 'C-l' my/fzf-cd-root-dir
-
 ble-bind -m 'vi_nmap' -x C-f fzf-file-widget
 ble-bind -m 'vi_nmap' -x C-r fzf-history-widget
-
-function ble/widget/my/fzf-cd-parent {
-  local dirs=()
-  local dir="$PWD"
-  while [[ -d "$dir" ]]; do
-    dirs+=("$dir")
-    [[ "$dir" == "/" ]] && break
-    dir="$(dirname "$dir")"
-  done
-  local selected
-  selected=$(printf '%s\n' "${dirs[@]}" | fzf --tac)
-  [[ -n "$selected" ]] || return 0
-  ble/widget/.replace-range 0 "${#_ble_edit_str}" "cd ${selected@Q}"
-    ble/widget/accept-line
-}
-ble-bind -m vi_nmap -f 'SP a a' my/fzf-cd-parent
 
 # ========================
 

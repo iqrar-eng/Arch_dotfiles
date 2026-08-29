@@ -78,6 +78,7 @@ vim.o.showtabline = 0
 vim.filetype.add({
   pattern = {
     ["vimiumc.*%.conf"] = "toml",
+    [".blerc"] = "bash",
   },
   filename = {
     ["/etc/keyd/default.conf"] = "toml",

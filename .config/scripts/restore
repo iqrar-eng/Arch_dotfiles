@@ -51,8 +51,8 @@ paths=(
   ".config/systemd"
 
   # https://github.com/boydaihungst/xdg-desktop-portal-termfilechooser/#configuration
-  ".config/xdg-desktop-portal-termfilechooser/yazi-wrapper.sh"
-  ".config/xdg-desktop-portal/portals.conf"
+  ".config/xdg-desktop-portal-termfilechooser/"
+  ".config/xdg-desktop-portal/"
 
   ".local/share/applications/yazi.desktop"
 )
@@ -84,6 +84,7 @@ sudo ln -sfn "$HOME/dotfiles/etc/keyd/default.conf" "/etc/keyd/default.conf"
 
 update-desktop-database "$HOME/.local/share/applications/"
 xdg-mime default yazi.desktop inode/directory
+systemctl --user restart xdg-desktop-portal-termfilechooser.service
 systemctl --user restart xdg-desktop-portal.service
 
 sudo mkdir -p /etc/systemd/system/getty@tty1.service.d

@@ -1,57 +1,76 @@
 #!/bin/bash
-
 # --- Config ---
-BATTERY_PATH="/sys/class/power_supply/BAT0"   # where the kernel exposes battery info
-THRESHOLD=30                                   # % below which we alert
-STATE_FILE="/tmp/battery-notified"             # marker: "we already notified this drop"
-ID_FILE="/tmp/battery-notif-id"                # stores dunst's notification ID so we can close it later
+BATTERY_PATH="/sys/class/power_supply/BAT0"     # where the kernel exposes battery info
+
+LOW_THRESHOLD=30                                 # % below which we alert (discharging)
+LOW_STATE_FILE="/tmp/battery-low-notified"       # marker: "we already notified this low drop"
+LOW_ID_FILE="/tmp/battery-low-notif-id"          # stores dunst's notification ID so we can close it later
+
+HIGH_THRESHOLD=85                                # % at/above which we alert (charging)
+HIGH_STATE_FILE="/tmp/battery-high-notified"     # marker: "we already notified this high charge"
+HIGH_ID_FILE="/tmp/battery-high-notif-id"        # stores dunst's notification ID so we can close it later
 
 # --- Read current battery state ---
 CAPACITY=$(cat "$BATTERY_PATH/capacity")   # e.g. 28
 STATUS=$(cat "$BATTERY_PATH/status")       # "Charging", "Discharging", "Full", etc.
 
-# --- Case 1: battery is low AND not charging ---
-if [ "$CAPACITY" -lt "$THRESHOLD" ] && [ "$STATUS" != "Charging" ]; then
+# --- Helper: send a notification, save its ID to a file ---
+send_notification() {
+    local summary="$1"
+    local id_file="$2"
+    local REPLY
+    REPLY=$(dbus-send --session --print-reply \
+        --dest=org.freedesktop.Notifications \
+        /org/freedesktop/Notifications \
+        org.freedesktop.Notifications.Notify \
+        string:"battery-check" \
+        uint32:0 \
+        string:"$summary" \
+        string:"" \
+        string:"" \
+        array:string:"" \
+        dict:string:variant:"" \
+        int32:0)
+    echo "$REPLY" | grep -oP 'uint32 \K[0-9]+' > "$id_file"
+}
 
-    # Only fire if we haven't already notified for this drop
-    if [ ! -f "$STATE_FILE" ]; then
-
-        # Send the notification over D-Bus directly (bypasses notify-send).
-        REPLY=$(dbus-send --session --print-reply \
-            --dest=org.freedesktop.Notifications \
-            /org/freedesktop/Notifications \
-            org.freedesktop.Notifications.Notify \
-            string:"battery-check" \
-            uint32:0 \
-            string:"${CAPACITY}% 🪫" \
-            string:"" \
-            string:"" \
-            array:string:"" \
-            dict:string:variant:"" \
-            int32:0)
-
-        # dbus-send's reply includes the new notification's ID (a uint32).
-        # Extract just that number so we can close this exact popup later.
-        echo "$REPLY" | grep -oP 'uint32 \K[0-9]+' > "$ID_FILE"
-
-        # Drop the marker so we don't notify again every 5 min while still low.
-        touch "$STATE_FILE"
-    fi
-
-# --- Case 2: battery is charging or back above threshold ---
-else
-
-    # If we have a stored notification ID, explicitly close that popup.
-    if [ -f "$ID_FILE" ]; then
-        NOTIF_ID=$(cat "$ID_FILE")
+# --- Helper: close a previously-sent notification by its saved ID ---
+close_notification() {
+    local id_file="$1"
+    if [ -f "$id_file" ]; then
+        local NOTIF_ID
+        NOTIF_ID=$(cat "$id_file")
         dbus-send --session --print-reply \
             --dest=org.freedesktop.Notifications \
             /org/freedesktop/Notifications \
             org.freedesktop.Notifications.CloseNotification \
             uint32:"$NOTIF_ID"
-        rm -f "$ID_FILE"
+        rm -f "$id_file"
     fi
+}
 
-    # Clear the "already notified" marker so next low-battery dip re-alerts.
-    rm -f "$STATE_FILE"
+# =========================================================
+# Case 1: LOW BATTERY (discharging, below threshold)
+# =========================================================
+if [ "$CAPACITY" -lt "$LOW_THRESHOLD" ] && [ "$STATUS" != "Charging" ]; then
+    if [ ! -f "$LOW_STATE_FILE" ]; then
+        send_notification "${CAPACITY}% 🪫" "$LOW_ID_FILE"
+        touch "$LOW_STATE_FILE"
+    fi
+else
+    close_notification "$LOW_ID_FILE"
+    rm -f "$LOW_STATE_FILE"
+fi
+
+# =========================================================
+# Case 2: HIGH CHARGE (charging, at/above threshold)
+# =========================================================
+if [ "$CAPACITY" -ge "$HIGH_THRESHOLD" ] && [ "$STATUS" == "Charging" ]; then
+    if [ ! -f "$HIGH_STATE_FILE" ]; then
+        send_notification "${CAPACITY}% 🔋" "$HIGH_ID_FILE"
+        touch "$HIGH_STATE_FILE"
+    fi
+else
+    close_notification "$HIGH_ID_FILE"
+    rm -f "$HIGH_STATE_FILE"
 fi

@@ -1,0 +1,16 @@
+[global]
+    origin = bottom-right
+    offset = (0, 0) # a margin of 10 pixels from the right and 300 pixels from the top
+    padding = 0
+    horizontal_padding = 0
+    width = (0, 300) # width between 0 and 300
+    height = (0, 300) # height between 0 and 300
+    frame_width = 0
+    show_age_threshold = 5m
+    background = "#00000000"
+
+[battery-check]
+    appname = "battery-check"
+    timeout = 0
+    format = "%i %p"
+    foreground = "#FFFFFFFF"

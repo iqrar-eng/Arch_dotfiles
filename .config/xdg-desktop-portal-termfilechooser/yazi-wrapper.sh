@@ -30,7 +30,7 @@ directory="$2"
 save="$3"
 path="$4"
 out="$5"
-cmd="/usr/bin/yazi"
+cmd="env YAZI_CONFIG_HOME=/home/iqrar/dotfiles/.config/yazi /usr/bin/yazi"
 # "wezterm start --always-new-process" if you use wezterm
 if [ "$save" = "1" ]; then
   TITLE="Save File:"
@@ -45,7 +45,8 @@ quote_string() {
   echo "'${input//\'/\'\\\'\'}'"
 }
 
-termcmd="${TERMCMD:-kitty --app-id 'yazi-selector' --title $(quote_string "$TITLE")}"
+# termcmd="${TERMCMD:-kitty --app-id 'yazi-selector' --title $(quote_string "$TITLE")}"
+termcmd="${TERMCMD:-kitty --config /home/iqrar/dotfiles/.config/kitty/default.conf --app-id 'yazi-selector' --title $(quote_string "$TITLE")}"
 
 cleanup() {
   if [ -f "$tmpfile" ]; then
