@@ -29,10 +29,12 @@ shopt -s cdspell
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='vim'
 else
-  export EDITOR='nvim'
+  export EDITOR='nvim -u $HOME/dotfiles/.config/nvim/init.lua'
 fi
-export VISUAL=nvim
-export SUDO_EDITOR=nvim
+export VISUAL='nvim -u $HOME/dotfiles/.config/nvim/init.lua'
+export SUDO_EDITOR='nvim -u $HOME/dotfiles/.config/nvim/init.lua'
+
+# export YAZI_CONFIG_HOME="$HOME/dotfiles/.config/yazi"
 
 set -o vi
 
@@ -61,7 +63,7 @@ export FZF_DEFAULT_OPTS="
 --scrollbar='█'
 --layout=reverse
 --walker-skip .git,node_modules,target
---bind 'ctrl-^:execute-silent(realpath -- {} | wl-copy)'
+--bind 'ctrl-d:execute-silent(realpath -- {} | wl-copy)'
 --bind 'ctrl-k:execute-silent(realpath -- {} | sed \"s|^$HOME|~|\" | wl-copy)'
 --bind 'ctrl-]:execute-silent(printf %s {+} | wl-copy)'
 --bind 'alt-x:forward-word'

@@ -1,5 +1,3 @@
--- utility_functions START -------------------------------------------------------------------
-
 local function yank_motion_text(type)
   local rv, rt = vim.fn.getreg('"'), vim.fn.getregtype('"')
   if type == "line" then
@@ -22,26 +20,8 @@ local function yank_selection_text()
   return text
 end
 
-local function url_encode(str)
-  return str:gsub("[^%w%-%.%_%~]", function(c)
-    return string.format("%%%02X", c:byte())
-  end)
-end
-
-local function bind_search(lhs, global_name, url_fmt)
-  _G[global_name] = function(type)
-    vim.ui.open(string.format(url_fmt, url_encode(yank_motion_text(type))))
-  end
-  vim.keymap.set("n", lhs, function()
-    vim.o.operatorfunc = "v:lua." .. global_name
-    return "g@"
-  end, { expr = true, desc = global_name })
-  vim.keymap.set("x", lhs, function()
-    vim.ui.open(string.format(url_fmt, url_encode(yank_selection_text())))
-  end, { desc = global_name })
-end
-
 local cmd = "hyprctl dispatch 'hl.dsp.focus({ workspace = \"1\" })' && ~/dotfiles/.config/scripts/util/hyprland"
+
 local function bind_send(lhs, cmd, register)
   local global_name = "SlimeBrowserSendOp_" .. lhs:gsub("[^%w]", "_")
   _G[global_name] = function(type)
@@ -58,7 +38,9 @@ local function bind_send(lhs, cmd, register)
   end, { desc = "Send selection to browser" })
 end
 
--- utility_functions END -------------------------------------------------------------------
+bind_send("<leader>f", cmd, "+")
+
+-- ========================
 
 vim.keymap.set("n", "<leader>a[", function()
   vim.cmd("normal! mz")
@@ -142,53 +124,6 @@ vim.keymap.set("c", "<S-End><Del>", '<c-f>"zD<C-c>')
 
 -- ========================
 
-vim.keymap.set(
-  "x",
-  "<leader>ia",
-  ":g#<C-r>=escape(@*, '#\\')<CR>#normal! \"*dd<CR><CR>:noh<CR>",
-  { silent = true, desc = "Delete lines matching clipboard (yanked to clipboard)" }
-)
-
 vim.keymap.set("x", "<leader>o", ':g#^$#normal! "_dd<CR><Cmd>noh<CR>', { silent = true, desc = "Delete blank lines" })
-
-vim.keymap.set("x", "<leader>ib", function()
-  local view = vim.fn.winsaveview()
-  vim.cmd('normal! "sy')
-  local pattern = "\\V" .. vim.fn.getreg("s"):gsub("#", "\\#"):gsub("\n", "\\n")
-  vim.fn.setreg("a", "")
-  vim.cmd("keeppatterns g#" .. pattern .. "#yank A")
-  local yanked = vim.fn.getreg("a"):gsub("^\n", "")
-  local count = yanked == "" and 0 or select(2, yanked:gsub("\n", "\n")) + (yanked:sub(-1) ~= "\n" and 1 or 0)
-  vim.fn.setreg("+", yanked)
-  vim.cmd("keeppatterns g#" .. pattern .. '#normal! "_dd')
-  vim.cmd("noh")
-  vim.fn.winrestview(view)
-  vim.schedule(function()
-    vim.notify(yanked, vim.log.levels.INFO)
-  end)
-end, { silent = true, desc = "Delete lines in file (yanked to clipboard)" })
-
-vim.keymap.set("x", "<leader>ic", function()
-  local view = vim.fn.winsaveview()
-  vim.cmd('normal! "sy')
-  local pattern = "\\V" .. vim.fn.getreg("s"):gsub("#", "\\#"):gsub("\n", "\\n")
-  vim.fn.setreg("a", "")
-  vim.cmd("keeppatterns g#" .. pattern .. "#yank A")
-  local yanked = vim.fn.getreg("a"):gsub("^\n", "")
-  local count = yanked == "" and 0 or select(2, yanked:gsub("\n", "\n")) + (yanked:sub(-1) ~= "\n" and 1 or 0)
-  vim.fn.setreg("+", yanked)
-  vim.cmd("noh")
-  vim.fn.winrestview(view)
-  vim.notify(yanked, vim.log.levels.INFO)
-  vim.notify(count .. " line(s) yanked", vim.log.levels.INFO)
-end, { silent = true, desc = "Yank lines in file" })
-
-bind_send("<leader>f", cmd, "+")
-
-bind_search("<leader>F", "Google_browser_Operator", "https://www.google.com/search?q=%s")
-bind_search("<Del>F", "Google_browser_Operator", "https://www.google.com/search?q=%s")
-
-bind_search("<leader>Y", "Github_browser_Operator", "https://duckduckgo.com/?q=!ducky+site:github.com+%s")
-bind_search("<Del>Y", "Github_browser_Operator", "https://duckduckgo.com/?q=!ducky+site:github.com+%s")
 
 vim.keymap.set("n", "<leader>a<CR>", ":let @+=@:<Left><Insert>", { desc = "let @+ =@x" })

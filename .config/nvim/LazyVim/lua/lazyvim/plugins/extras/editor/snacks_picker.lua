@@ -183,42 +183,6 @@ return {
             require("snacks.picker.core.picker").new({ source = "files", cwd = Snacks.picker.util.dir(item) })
           end,
 
-          picker_open_tmux_window_root = function(picker, item)
-            if not item then
-              return
-            end
-            local path = Snacks.picker.util.path(item)
-            if not path then
-              return
-            end
-            local buf = vim.fn.bufadd(path)
-            vim.fn.bufload(buf)
-            local root = LazyVim.root.get({ buf = buf })
-
-            vim.fn.jobstart("tmux new-window -c " .. vim.fn.shellescape(root), { detach = true })
-            vim.fn.jobstart([[hyprctl dispatch "hl.dsp.focus({ workspace = "3" })" >/dev/null]], { detach = true })
-          end,
-
-          picker_open_tmux_window_dir = function(picker, item)
-            if not item then
-              return
-            end
-            local path = Snacks.picker.util.path(item)
-            if not path then
-              return
-            end
-
-            -- if the item is a file, use its parent directory
-            local dir = path
-            local stat = vim.uv.fs_stat(path)
-            if stat and stat.type ~= "directory" then
-              dir = vim.fn.fnamemodify(path, ":h")
-            end
-
-            vim.fn.jobstart("tmux new-window -c " .. vim.fn.shellescape(dir), { detach = true })
-            vim.fn.jobstart([[hyprctl dispatch "hl.dsp.focus({ workspace = "3" })" >/dev/null]], { detach = true })
-          end,
-
           picker_grep_root = function(picker, item)
             if not item then
               return
@@ -452,9 +416,7 @@ return {
               ["<C-c>"] = { "cancel", mode = { "n", "x", "s", "i" } },
               ["<M-s>"] = { "yank_preview", mode = { "n", "x", "s", "i" } },
               ["<M-d>"] = { "yank_list", mode = { "n", "x", "s", "i" } },
-              ["<C-S-T>"] = { "picker_open_tmux_window_dir", mode = { "n", "x", "s", "i" } },
-              ["<C-S-R>"] = { "picker_open_tmux_window_root", mode = { "n", "x", "s", "i" } },
-              ["<C-^>"] = { "explorer_yank", mode = { "n", "x", "s", "i" } },
+              ["<C-D>"] = { "explorer_yank", mode = { "n", "x", "s", "i" } },
               ["<M-g>"] = { "explorer_del", mode = { "n", "x", "s", "i" } },
               ["<C-S-B>"] = { "yank_file_uri", mode = { "n", "x", "s", "i" } },
               ["k"] = { "n", mode = { "n", "x" }, expr = true, desc = "delete word" },
@@ -503,9 +465,7 @@ return {
               ["<C-c>"] = { "cancel", mode = { "n", "x", "s", "i" } },
               ["<M-s>"] = { "yank_preview", mode = { "n", "x", "s", "i" } },
               ["<M-d>"] = { "yank_list", mode = { "n", "x", "s", "i" } },
-              ["<C-S-T>"] = { "picker_open_tmux_window_dir", mode = { "n", "x", "s", "i" } },
-              ["<C-S-R>"] = { "picker_open_tmux_window_root", mode = { "n", "x", "s", "i" } },
-              ["<C-^>"] = { "explorer_yank", mode = { "n", "x", "s", "i" } },
+              ["<C-D>"] = { "explorer_yank", mode = { "n", "x", "s", "i" } },
               ["<M-g>"] = { "explorer_del", mode = { "n", "x", "s", "i" } },
               ["<C-S-B>"] = { "yank_file_uri", mode = { "n", "x", "s", "i" } },
               ["k"] = { "n", mode = { "n", "x" }, expr = true, desc = "delete word" },

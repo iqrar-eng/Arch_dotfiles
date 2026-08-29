@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+
+find ~ -maxdepth 2 -xtype l 2>/dev/null | while read -r link; do
+  [ "$(readlink -f "$link")" = "$HOME/dotfiles/.bashrc" ] && echo "Found: $link -> $(readlink -f "$link")"
+done

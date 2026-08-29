@@ -1,4 +1,8 @@
-local aerial_state = { auto = true }
+local state_file = vim.fn.stdpath("state") .. "/aerial_auto"
+local aerial_state = { auto = vim.fn.filereadable(state_file) == 0 or vim.fn.readfile(state_file)[1] == "1" }
+local function save()
+  vim.fn.writefile({ aerial_state.auto and "1" or "0" }, state_file)
+end
 
 return {
   {
@@ -97,6 +101,7 @@ return {
         "<leader>ao",
         function()
           aerial_state.auto = not aerial_state.auto
+          save()
           if aerial_state.auto then
             require("aerial").open({ focus = false })
           else

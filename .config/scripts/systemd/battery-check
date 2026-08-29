@@ -1,0 +1,57 @@
+#!/bin/bash
+
+# --- Config ---
+BATTERY_PATH="/sys/class/power_supply/BAT0"   # where the kernel exposes battery info
+THRESHOLD=30                                   # % below which we alert
+STATE_FILE="/tmp/battery-notified"             # marker: "we already notified this drop"
+ID_FILE="/tmp/battery-notif-id"                # stores dunst's notification ID so we can close it later
+
+# --- Read current battery state ---
+CAPACITY=$(cat "$BATTERY_PATH/capacity")   # e.g. 28
+STATUS=$(cat "$BATTERY_PATH/status")       # "Charging", "Discharging", "Full", etc.
+
+# --- Case 1: battery is low AND not charging ---
+if [ "$CAPACITY" -lt "$THRESHOLD" ] && [ "$STATUS" != "Charging" ]; then
+
+    # Only fire if we haven't already notified for this drop
+    if [ ! -f "$STATE_FILE" ]; then
+
+        # Send the notification over D-Bus directly (bypasses notify-send).
+        REPLY=$(dbus-send --session --print-reply \
+            --dest=org.freedesktop.Notifications \
+            /org/freedesktop/Notifications \
+            org.freedesktop.Notifications.Notify \
+            string:"battery-check" \
+            uint32:0 \
+            string:"${CAPACITY}% 🪫" \
+            string:"" \
+            string:"" \
+            array:string:"" \
+            dict:string:variant:"" \
+            int32:0)
+
+        # dbus-send's reply includes the new notification's ID (a uint32).
+        # Extract just that number so we can close this exact popup later.
+        echo "$REPLY" | grep -oP 'uint32 \K[0-9]+' > "$ID_FILE"
+
+        # Drop the marker so we don't notify again every 5 min while still low.
+        touch "$STATE_FILE"
+    fi
+
+# --- Case 2: battery is charging or back above threshold ---
+else
+
+    # If we have a stored notification ID, explicitly close that popup.
+    if [ -f "$ID_FILE" ]; then
+        NOTIF_ID=$(cat "$ID_FILE")
+        dbus-send --session --print-reply \
+            --dest=org.freedesktop.Notifications \
+            /org/freedesktop/Notifications \
+            org.freedesktop.Notifications.CloseNotification \
+            uint32:"$NOTIF_ID"
+        rm -f "$ID_FILE"
+    fi
+
+    # Clear the "already notified" marker so next low-battery dip re-alerts.
+    rm -f "$STATE_FILE"
+fi

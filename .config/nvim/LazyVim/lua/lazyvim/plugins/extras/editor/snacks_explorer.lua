@@ -44,6 +44,7 @@ return {
                     expr = true,
                     desc = "move up (visual line)",
                   },
+                  ["n"] = "confirm",
                 },
               },
             },

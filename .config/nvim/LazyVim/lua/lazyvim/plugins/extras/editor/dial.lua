@@ -79,37 +79,15 @@ return {
     local equality              = const({ "==", "!=" })
     local strictEquality        = const({ "===", "!==" })
     local AND_OR_operators      = const({ "&&", "||" })
-    local on_off                = const({ "off", "on" })
-    local light_dark            = const({ "dark", "light" })
-    local upper_lower           = const({ "upper", "lower" })
     local home_end              = const({ "home", "end" })
-    local in_out                = const({ "in", "out" })
     local left_right            = const({ "left", "right" })
-    local above_below           = const({ "above", "below" })
     local up_down               = const({ "up", "down" })
-    local top_bottom            = const({ "top", "bottom" })
-    local enable_disable        = const({ "disable", "enable" })
-    local export_import         = const({ "export", "import" })
-    local from_to               = const({ "from", "to" })
-    local show_hide             = const({ "hide", "show" })
-    local visible_hidden        = const({ "hidden", "visible" })
     local and_or                = const({ "and", "or" })
     local min_max               = const({ "max", "min" })
     local width_height          = const({ "height", "width" })
-    local open_close            = const({ "open", "close" })
-    local opening_closing       = const({ "opening", "closing" })
     local next_previous         = const({ "next", "previous" })
     local before_after          = const({ "after", "before" })
-    local old_new               = const({ "new", "old" })
-    local add_remove            = const({ "remove", "add" })
-    local start_end             = const({ "start", "end" })
     local alt_ctrl_shift        = const({ "alt", "ctrl", "shift" })
-    local forward_backward      = const({ "forward", "backward" })
-    local connect_disconnect    = const({ "connect", "disconnect" })
-    local increase_decrease     = const({ "increase", "decrease" })
-    local increment_decrement   = const({ "increment", "decrement" })
-    local horizontal_vertical   = const({ "vertical", "horizontal" })
-    local row_column            = const({ "column", "row" })
     local yes_no                = const({ "no", "yes" })
     local number_words_with_th  = const({ "first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth","eleventh","twelfth","thirteenth","fourteenth","fifteenth","sixteenth","seventeenth","eighteenth","nineteenth","twentieth","last" })
     local number_words          = const({ "zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty" }, { word = true })
@@ -149,37 +127,15 @@ return {
           equality,
           strictEquality,
           AND_OR_operators,
-          on_off,
-          light_dark,
-          upper_lower,
           home_end,
-          in_out,
           left_right,
-          above_below,
           up_down,
-          top_bottom,
-          enable_disable,
-          export_import,
-          from_to,
-          show_hide,
-          visible_hidden,
           and_or,
           min_max,
           width_height,
-          open_close,
-          opening_closing,
           next_previous,
           before_after,
-          old_new,
-          add_remove,
-          start_end,
           alt_ctrl_shift,
-          forward_backward,
-          connect_disconnect,
-          increase_decrease,
-          increment_decrement,
-          horizontal_vertical,
-          row_column,
           yes_no,
           number_words_with_th,
           number_words,

@@ -59,12 +59,6 @@ end
 
 -- utility_functions END ===================================================================
 
-vim.keymap.set("n", "<leader>ac", function()
-  local reg = vim.fn.getreg("*"):gsub("^:", "")
-  vim.fn.histadd("cmd", reg)
-  vim.cmd(reg)
-end, { desc = "Execute clipboard as :" })
-
 vim.keymap.set({ "n", "o" }, "<M-C-D>", "*<cmd>nohlsearch<CR>", { silent = true })
 vim.keymap.set("x", "<M-C-D>", "<Esc>*gvn<cmd>nohlsearch<CR>", { silent = true })
 vim.keymap.set({ "n", "o" }, "<M-C-A>", "#<cmd>nohlsearch<CR>", { silent = true })
@@ -87,12 +81,9 @@ vim.keymap.set("n", "ZR", function()
 end, { desc = "Reload nvim" })
 
 vim.keymap.set("n", "<C-Q>", function()
-  local explorer = Snacks.picker.get({ source = "explorer" })[1]
-  if explorer then
-    explorer:close()
-  end
+  vim.cmd("w")
   vim.defer_fn(function()
-    vim.cmd("wqa!")
+    vim.cmd("qa!")
   end, 50)
 end, { desc = "Quit nvim" })
 
@@ -258,55 +249,24 @@ end, { silent = true })
 
 -- ========================
 
-vim.keymap.set("n", "<leader>a_", function()
-  local path = vim.api.nvim_buf_get_name(0)
-  if path == "" then
-    return
-  end
-
-  local modifier = ":h"
-  if vim.v.count > 0 then
-    modifier = modifier .. string.rep(":h", vim.v.count)
-  end
-  local dir = vim.fn.fnamemodify(path, modifier)
-
-  vim.fn.jobstart("tmux new-window -c " .. vim.fn.shellescape(dir), { detach = true })
-  vim.fn.jobstart([[hyprctl dispatch "hl.dsp.focus({ workspace = "3" })" >/dev/null]], { detach = true })
-end, { desc = "Open tmux window N parent dir" })
-
-vim.keymap.set("n", "<leader>ae", function()
-  local path = vim.api.nvim_buf_get_name(0)
-  if path == "" then
-    return
-  end
-
-  local buf = vim.fn.bufadd(path)
-  vim.fn.bufload(buf)
-  local root = LazyVim.root.get({ buf = buf })
-
-  vim.fn.jobstart("tmux new-window -c " .. vim.fn.shellescape(root), { detach = true })
-  vim.fn.jobstart([[hyprctl dispatch "hl.dsp.focus({ workspace = "3" })" >/dev/null]], { detach = true })
-end, { desc = "Open tmux window project root" })
-
-vim.keymap.set("n", "<leader>ab", function()
-  local modifier = ":~"
-  if vim.v.count > 0 then
-    modifier = modifier .. string.rep(":h", vim.v.count)
-  end
-  local path = vim.fn.expand("%" .. modifier)
-  vim.fn.system("wl-copy", path)
-  vim.notify(path, vim.log.levels.INFO)
-end, { desc = "Copy relative path N levels up" })
-
-vim.keymap.set("n", "<leader>au", function()
+vim.keymap.set("n", "<C-D>", function()
   local modifier = ""
   if vim.v.count > 0 then
     modifier = modifier .. string.rep(":h", vim.v.count)
   end
-  local path = vim.fn.expand("%" .. modifier)
+  local path = vim.fn.expand("%:p" .. modifier)
   vim.fn.system("wl-copy", path)
   vim.notify(path, vim.log.levels.INFO)
 end, { desc = "Copy absolute path N levels up" })
+
+vim.keymap.set("n", "<M-g>", function()
+  local path = vim.api.nvim_buf_get_name(0)
+  if path == "" then
+    vim.notify("No file in current buffer", vim.log.levels.WARN)
+    return
+  end
+  local explorer = require("snacks.explorer.actions").trash(path)
+end, { desc = "Trash current file" })
 
 vim.keymap.set("n", "<C-S-B>", function()
   local p = vim.fn.expand("%:p")

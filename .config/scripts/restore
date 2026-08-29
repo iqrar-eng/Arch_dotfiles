@@ -1,16 +1,6 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
-sudo pacman -S --needed --noconfirm firefox nautilus fd ripgrep starship zoxide neovim vim \
-  brightnessctl jq make nodejs npm power-profiles-daemon vlc \
-  copyq wl-clipboard \
-  grim slurp satty \
-  noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra ttf-jetbrains-mono-nerd \
-  git github-cli lazygit \
-  man-db man-pages
-
-sudo man-db
-
 # https://github.com/morganamilo/paru#installation
 sudo pacman -S --needed base-devel
 git clone https://aur.archlinux.org/paru.git paru
@@ -21,29 +11,80 @@ rm -rf paru
 
 paru -S --needed --noconfirm blesh-git
 
+sudo pacman -S --needed --noconfirm firefox fd ripgrep starship zoxide neovim vim \
+  brightnessctl jq make nodejs npm power-profiles-daemon vlc \
+  copyq wl-clipboard \
+  grim slurp satty \
+  noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra ttf-jetbrains-mono-nerd \
+  git github-cli lazygit
+
+sudo pacman -S --needed yazi
+ya pkg add boydaihungst/gvfs
+ya pkg add yazi-rs/flavors:catppuccin-mocha
+ya pkg add yazi-rs/flavors:catppuccin-latte
+
+sudo pacman -S --needed man-db man-pages
+sudo man-db
+
 # ========================
 
 git clone https://github.com/iqrar-eng/dotfiles ~/dotfiles
 
-ln -sfn "$HOME/dotfiles/.blerc" "$HOME/.blerc"
-ln -sfn "$HOME/dotfiles/.bashrc" "$HOME/.bashrc"
-ln -sfn "$HOME/dotfiles/.bash_profile" "$HOME/.bash_profile"
-ln -sfn "$HOME/dotfiles/.config/starship.toml" "$HOME/.config/starship.toml"
-
 mkdir -p "$HOME/.config/copyq/"
-ln -sfn "$HOME/dotfiles/.config/copyq/themes" "$HOME/.config/copyq/themes"
-ln -sfn "$HOME/dotfiles/.config/copyq/copyq-commands.ini" "$HOME/.config/copyq/copyq-commands.ini"
-ln -sfn "$HOME/dotfiles/.config/copyq/copyq.conf" "$HOME/.config/copyq/copyq.conf"
+mkdir -p "$HOME/.config/xdg-desktop-portal"
+mkdir -p "$HOME/.config/xdg-desktop-portal-termfilechooser"
+mkdir -p "$HOME/.local/share/applications"
 
-ln -sfn "$HOME/dotfiles/.config/kitty" "$HOME/.config/kitty"
-ln -sfn "$HOME/dotfiles/.config/nvim" "$HOME/.config/nvim"
-ln -sfn "$HOME/dotfiles/.config/mimeapps.list" "$HOME/.config/mimeapps.list"
+paths=(
+  ".bash_profile"
+  ".bashrc"
+  ".blerc"
+  ".tmux.conf"
 
-mkdir -p "$HOME/.config/tmux"
-ln -sfn "$HOME/dotfiles/.config/tmux/tmux.conf" "$HOME/.config/tmux/tmux.conf"
+  ".config/copyq/copyq-commands.ini"
+  ".config/copyq/copyq.conf"
+
+  ".config/mimeapps.list"
+  ".config/starship.toml"
+
+  ".config/dunst"
+  ".config/systemd"
+
+  # https://github.com/boydaihungst/xdg-desktop-portal-termfilechooser/#configuration
+  ".config/xdg-desktop-portal-termfilechooser/yazi-wrapper.sh"
+  ".config/xdg-desktop-portal/portals.conf"
+
+  ".local/share/applications/yazi.desktop"
+)
+
+# backup
+# ========================
+
+for p in "${paths[@]}"; do
+  if [ -L "$HOME/$p" ]; then
+    echo "skip (already linked): $p"
+    continue
+  fi
+  mkdir -p "$HOME/dotfiles/$(dirname "$p")" \
+  && mv "$HOME/$p" "$HOME/dotfiles/$p" \
+  && ln -sfn "$HOME/dotfiles/$p" "$HOME/$p"
+done
+git -C "$HOME/dotfiles" add .
+git -C "$HOME/dotfiles" commit -m "add dotfiles/dirs"
+
+# restore
+# ========================
+
+for p in "${paths[@]}"; do
+  ln -sfn "$HOME/dotfiles/$p" "$HOME/$p"
+done
 
 sudo chmod 777 "$HOME/dotfiles/etc/keyd/default.conf"
 sudo ln -sfn "$HOME/dotfiles/etc/keyd/default.conf" "/etc/keyd/default.conf"
+
+update-desktop-database "$HOME/.local/share/applications/"
+xdg-mime default yazi.desktop inode/directory
+systemctl --user restart xdg-desktop-portal.service
 
 sudo mkdir -p /etc/systemd/system/getty@tty1.service.d
 sudo tee /etc/systemd/system/getty@tty1.service.d/override.conf > /dev/null << 'EOF'
@@ -57,46 +98,46 @@ loginctl terminate-user $USER
 
 # ========================
 
-mkdir -p ~/.src
+mkdir -p "$HOME/.src"
 
-git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/prisma/web.git prisma
-git -C ~/.src/prisma sparse-checkout set --no-cone \
+git -C "$HOME/.src" clone --filter=blob:none --no-checkout https://github.com/prisma/web.git prisma
+git -C "$HOME/.src/prisma" sparse-checkout set --no-cone \
   'apps/docs/content/docs/**/*.mdx' \
   '!apps/docs/content/docs/**/v6/**'
-git -C ~/.src/prisma checkout
+git -C "$HOME/.src/prisma" checkout
 
-git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/better-auth/better-auth.git better-auth
-git -C ~/.src/better-auth sparse-checkout set --no-cone \
+git -C "$HOME/.src" clone --filter=blob:none --no-checkout https://github.com/better-auth/better-auth.git better-auth
+git -C "$HOME/.src/better-auth" sparse-checkout set --no-cone \
   'docs/content/docs/**/*.mdx'
-git -C ~/.src/better-auth checkout
+git -C "$HOME/.src/better-auth" checkout
 
-git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/vercel/next.js.git next.js
-git -C ~/.src/next.js sparse-checkout set --no-cone \
+git -C "$HOME/.src" clone --filter=blob:none --no-checkout https://github.com/vercel/next.js.git next.js
+git -C "$HOME/.src/next.js" sparse-checkout set --no-cone \
   'docs/01-app'
-git -C ~/.src/next.js checkout
+git -C "$HOME/.src/next.js" checkout
 
-git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/nodejs/node.git node
-git -C ~/.src/node sparse-checkout set --no-cone \
+git -C "$HOME/.src" clone --filter=blob:none --no-checkout https://github.com/nodejs/node.git node
+git -C "$HOME/.src/node" sparse-checkout set --no-cone \
   'doc/api'
-git -C ~/.src/node checkout
+git -C "$HOME/.src/node" checkout
 
-git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/mdn/content.git mdn
-git -C ~/.src/mdn sparse-checkout set --no-cone \
+git -C "$HOME/.src" clone --filter=blob:none --no-checkout https://github.com/mdn/content.git mdn
+git -C "$HOME/.src/mdn" sparse-checkout set --no-cone \
   'files/en-us/web/api' \
   'files/en-us/web/http' \
   'files/en-us/web/javascript'
-git -C ~/.src/mdn checkout
+git -C "$HOME/.src/mdn" checkout
 
-git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/reactjs/react.dev.git react
-git -C ~/.src/react sparse-checkout set --no-cone \
+git -C "$HOME/.src" clone --filter=blob:none --no-checkout https://github.com/reactjs/react.dev.git react
+git -C "$HOME/.src/react" sparse-checkout set --no-cone \
   'src/content/reference'
-git -C ~/.src/react checkout
+git -C "$HOME/.src/react" checkout
 
-git -C ~/.src clone --filter=blob:none --no-checkout https://github.com/typescript-cheatsheets/react.git typescript-cheatsheets-react
-git -C ~/.src/typescript-cheatsheets-react sparse-checkout set --no-cone \
+git -C "$HOME/.src" clone --filter=blob:none --no-checkout https://github.com/typescript-cheatsheets/react.git typescript-cheatsheets-react
+git -C "$HOME/.src/typescript-cheatsheets-react" sparse-checkout set --no-cone \
   'docs'
-git -C ~/.src/typescript-cheatsheets-react checkout
-rm ~/.src/react/src/content/reference/_basic
-rm ~/.src/react/src/content/reference/_api
-ln -s ~/.src/typescript-cheatsheets-react/docs/basic/getting-started/ ~/.src/react/src/content/reference/_basic
-ln -s ~/.src/typescript-cheatsheets-react/docs/reference/ ~/.src/react/src/content/reference/_api
+git -C "$HOME/.src/typescript-cheatsheets-react" checkout
+rm "$HOME/.src/react/src/content/reference/_basic"
+rm "$HOME/.src/react/src/content/reference/_api"
+ln -s "$HOME/.src/typescript-cheatsheets-react/docs/basic/getting-started/" "$HOME/.src/react/src/content/reference/_basic"
+ln -s "$HOME/.src/typescript-cheatsheets-react/docs/reference/" "$HOME/.src/react/src/content/reference/_api"

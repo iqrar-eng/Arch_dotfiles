@@ -36,8 +36,8 @@ return {
         -- stylua: ignore
         keymap = {
           preset = "none",
-          ["<C-f>"] = { "show_and_insert_or_accept_single", "select_next" },
-          ["<C-l>"] = { "show_and_insert_or_accept_single", "select_prev" },
+          ["<Tab>"] = { "show_and_insert_or_accept_single", "select_next" },
+          ["<S-Tab>"] = { "show_and_insert_or_accept_single", "select_prev" },
 
           ["<C-w>"] = { "hide", "show" },
           ["<C-p>"] = { "cancel", "show" },
@@ -61,13 +61,14 @@ return {
       -- stylua: ignore
       keymap = {
         preset = "none",
+        ["<Tab>"] = { "select_next", "fallback_to_mappings" },
+        ["<S-Tab>"] = { "select_prev", "fallback_to_mappings" },
+
         ["<C-w>"] = { "hide", "show" },
         ["<C-p>"] = { "cancel", "show" },
-        ["<M-CR>"] = { "show_and_insert_or_accept_single", "select_and_accept" },
-        ["<S-Tab>"] = { "snippet_backward", "fallback" },
 
-        ["<C-l>"] = { "select_prev", "fallback_to_mappings" },
-        ["<C-f>"] = { "select_next", "fallback_to_mappings" },
+        ["<M-CR>"] = { "show_and_insert_or_accept_single", "select_and_accept" },
+        ["<C-S>"] = { "snippet_backward", "fallback" },
 
         ["<C-S-H>"] = { "scroll_documentation_down" },
         ["<C-S-S>"] = { "scroll_documentation_up" },

@@ -1,13 +1,15 @@
 ---------------------
 ---- MY PROGRAMS ----
 ---------------------
+local my_nvim = " nvim -u ~/dotfiles/.config/nvim/init.lua "
+local my_kitty = " kitty --config ~/dotfiles/.config/kitty/default.conf "
 
 local firefox = "firefox"
-local nvim = "kitty --class kitty-nvim nvim"
-local terminal =
-	"kitty --class kitty-terminal --config ~/.config/kitty/kitty.conf --config ~/.config/kitty/kitty_terminal.conf sh -c 'tmux attach 2>/dev/null || tmux new-session'"
+local nvim = my_kitty .. "--class kitty-nvim" .. my_nvim
+local terminal = my_kitty
+	.. "--config ~/dotfiles/.config/kitty/terminal.conf --class kitty-terminal sh -c 'tmux attach 2>/dev/null || tmux new-session'"
 local clipboard = "copyq --start-server show"
--- local fileManager = "nautilus --new-window --select ~/Downloads"
+local fileManager = my_kitty .. "--class kitty-yazi -e yazi"
 
 ------------------------
 ---- RULES ---
@@ -17,7 +19,7 @@ hl.workspace_rule({ workspace = "1", on_created_empty = firefox })
 hl.workspace_rule({ workspace = "2", on_created_empty = nvim })
 hl.workspace_rule({ workspace = "3", on_created_empty = terminal })
 hl.workspace_rule({ workspace = "4", on_created_empty = clipboard })
--- hl.workspace_rule({ workspace = "5", on_created_empty = fileManager })
+hl.workspace_rule({ workspace = "5", on_created_empty = fileManager })
 
 -- No border when only one window is open on a workspace (tiled or floating)
 hl.window_rule({ name = "no-border-single-tiled", match = { float = false, workspace = "w[tv1]" }, border_size = 0 })
@@ -28,7 +30,7 @@ hl.window_rule({ name = "firefox-to-ws1", match = { class = "firefox" }, workspa
 hl.window_rule({ name = "nvim-to-ws2", match = { class = "kitty-nvim" }, workspace = "2" })
 hl.window_rule({ name = "terminal-to-ws3", match = { class = "kitty-terminal" }, workspace = "3" })
 hl.window_rule({ name = "copyq-to-ws4", match = { class = "com.github.hluk.copyq" }, workspace = "4" })
-hl.window_rule({ name = "nautilus-to-ws5", match = { class = "org.gnome.Nautilus" }, workspace = "5" })
+hl.window_rule({ name = "yazi-to-ws5", match = { class = "kitty-yazi" }, workspace = "5" })
 
 -------------------
 ---- AUTOSTART ----
@@ -50,6 +52,7 @@ end)
 
 hl.env("XCURSOR_SIZE", "20")
 hl.env("HYPRCURSOR_SIZE", "20")
+hl.env("HYPRLAND_CONFIG", os.getenv("HOME") .. "/dotfiles/.config/hypr/hyprland.lua")
 
 -----------------------
 ---- LOOK AND FEEL ----
@@ -73,6 +76,7 @@ hl.config({
 	-- See https://wiki.hypr.land/Configuring/Layouts/Dwindle-Layout/ for more
 	dwindle = {
 		preserve_split = true, -- You probably want this
+		force_split = 2,
 	},
 
 	ecosystem = {
@@ -87,7 +91,7 @@ hl.config({
 	},
 
 	debug = {
-		-- suppress_errors = true,
+		suppress_errors = true,
 	},
 
 	input = {
@@ -158,12 +162,6 @@ hl.bind(
 hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"), { locked = true, repeating = true })
 hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"), { locked = true, repeating = true })
 
--- Requires playerctl
-hl.bind("XF86AudioNext", hl.dsp.exec_cmd("playerctl next"), { locked = true })
-hl.bind("XF86AudioPause", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioPlay", hl.dsp.exec_cmd("playerctl play-pause"), { locked = true })
-hl.bind("XF86AudioPrev", hl.dsp.exec_cmd("playerctl previous"), { locked = true })
-
 hl.bind(
 	"SHIFT + CTRL + ALT + SUPER + R",
 	hl.dsp.exec_cmd(
@@ -207,11 +205,3 @@ hl.bind(
 		'[float; size 1100 600; center] kitty --config NONE --class kitty-wifi-popup -o remember_window_size=no -o confirm_os_window_close=0 -o font_family="JetBrainsMono Nerd Font" --single-instance --instance-group=wifi-popup sh -c "nmcli device wifi list ; nmtui-connect"'
 	)
 )
-
-local fileManager = "kitty --class kitty-yazi -e yazi"
-hl.workspace_rule({ workspace = "5", on_created_empty = fileManager })
-hl.window_rule({ name = "yazi-to-ws5", match = { class = "kitty-yazi" }, workspace = "5" })
-hl.window_rule({ name = "yazi-fullscreen", match = { class = "kitty-yazi" }, fullscreen = true })
-
-hl.window_rule({ name = "yazi-selector-fullscreen2", match = { class = "kitty" }, fullscreen = true, float = true })
-hl.window_rule({ name = "yazi-selector-fullscreen3", match = { class = "kitty" }, fullscreen = true, float = true })
