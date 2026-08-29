@@ -1,1 +1,0 @@
-/home/iqrar/dotfiles/.config/xdg-desktop-portal-termfilechooser/yazi-wrapper.sh
