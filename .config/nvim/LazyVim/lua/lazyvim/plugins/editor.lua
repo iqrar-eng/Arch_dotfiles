@@ -267,9 +267,9 @@ return {
       {
         "<leader>ha",
         function()
-          im.cmd("Git! add -A")
+          vim.cmd("Git! add -A")
           vim.cmd("Git! commit -m 'add files/dirs'")
-          vim.cmd("Git! push origin main")
+          -- vim.cmd("Git! push origin main")
         end,
         desc = "Git stage, commit, push (async)",
       },
