@@ -54,7 +54,7 @@ close_notification() {
 # =========================================================
 if [ "$CAPACITY" -lt "$LOW_THRESHOLD" ] && [ "$STATUS" != "Charging" ]; then
     if [ ! -f "$LOW_STATE_FILE" ]; then
-        send_notification "${CAPACITY}% 🪫" "$LOW_ID_FILE"
+        send_notification "${CAPACITY}% 🪫 🟥" "$LOW_ID_FILE"
         touch "$LOW_STATE_FILE"
     fi
 else
@@ -67,7 +67,7 @@ fi
 # =========================================================
 if [ "$CAPACITY" -ge "$HIGH_THRESHOLD" ] && [ "$STATUS" == "Charging" ]; then
     if [ ! -f "$HIGH_STATE_FILE" ]; then
-        send_notification "${CAPACITY}% 🔋" "$HIGH_ID_FILE"
+        send_notification "${CAPACITY}% 🔋 🟩" "$HIGH_ID_FILE"
         touch "$HIGH_STATE_FILE"
     fi
 else

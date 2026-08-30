@@ -85,7 +85,7 @@ export FZF_DEFAULT_OPTS="
 --bind 'ctrl-end:last'
 --bind 'ctrl-up:prev-history'
 --bind 'ctrl-down:next-history'
---bind 'ctrl-alt-shift-home:execute(/home/iqrar/dotfiles/.config/scripts/tmux/vim-fzf-focus {})'
+--bind 'ctrl-alt-shift-home:execute(/home/iqrar/dotfiles/.config/tmux/bin/vim-fzf-focus {})'
 "
 export FZF_CTRL_R_OPTS="--no-preview"
 

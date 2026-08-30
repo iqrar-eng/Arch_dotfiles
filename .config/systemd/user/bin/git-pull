@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
 roots=(
-  ~/projects
+  # ~/projects
   ~/.src
 )
 find "${roots[@]}" -name .git -type d -print0 | while IFS= read -r -d '' d; do

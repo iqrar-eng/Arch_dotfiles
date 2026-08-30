@@ -52,6 +52,17 @@ return {
             require("aerial").select({ jump = false })
           end,
 
+          ["<PageUp>"] = function()
+            local key = vim.api.nvim_replace_termcodes("<C-U>zz", true, false, true)
+            vim.api.nvim_feedkeys(key, "n", false)
+            require("aerial").select({ jump = false })
+          end,
+          ["<PageDown>"] = function()
+            local key = vim.api.nvim_replace_termcodes("<C-D>zz", true, false, true)
+            vim.api.nvim_feedkeys(key, "n", false)
+            require("aerial").select({ jump = false })
+          end,
+
           ["e"] = "actions.tree_close",
           ["h"] = function()
             local count = math.max(vim.v.count, 1)

@@ -1,0 +1,6 @@
+[Unit]
+Description=git-pull
+
+[Service]
+Type=oneshot
+ExecStart=%h/dotfiles/.config/systemd/user/bin/git-pull

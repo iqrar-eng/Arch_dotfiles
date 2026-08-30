@@ -20,7 +20,7 @@ local function yank_selection_text()
   return text
 end
 
-local cmd = "hyprctl dispatch 'hl.dsp.focus({ workspace = \"1\" })' && ~/dotfiles/.config/scripts/util/hyprland"
+local cmd = "hyprctl dispatch 'hl.dsp.focus({ workspace = \"1\" })' && ~/dotfiles/.config/hypr/bin/paste"
 
 local function bind_send(lhs, cmd, register)
   local global_name = "SlimeBrowserSendOp_" .. lhs:gsub("[^%w]", "_")
