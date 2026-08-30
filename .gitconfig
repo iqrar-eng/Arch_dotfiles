@@ -1,0 +1,7 @@
+[safe]
+	directory = /
+[user]
+	name = Iqrar
+	email = iqrar.h8197@gmail.com
+[init]
+	defaultBranch = main

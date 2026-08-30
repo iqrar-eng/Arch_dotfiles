@@ -39,6 +39,7 @@ paths=(
   ".bash_profile"
   ".bashrc"
   ".blerc"
+  ".gitconfig"
   ".tmux.conf"
 
   ".config/copyq/copyq-commands.ini"
