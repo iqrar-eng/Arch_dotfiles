@@ -1,0 +1,15 @@
+#!/bin/bash
+
+export YAZI_CONFIG_HOME=~/dotfiles/.config/yazi
+
+MY_ID=123456
+PATHS=("${@:-$HOME}")
+YAZI_CMD=(kitty --class kitty-yazi -e yazi)
+
+if ya emit-to "$MY_ID" tab_create "${PATHS[0]}" 2>/dev/null; then
+  for p in "${PATHS[@]:1}"; do
+    ya emit-to "$MY_ID" tab_create "$p"
+  done
+else
+  "${YAZI_CMD[@]}" --client-id "$MY_ID" "${PATHS[@]}"
+fi

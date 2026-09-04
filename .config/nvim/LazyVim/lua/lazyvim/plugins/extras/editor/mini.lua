@@ -5,14 +5,14 @@ return {
     config = function()
       require("mini.move").setup({
         mappings = {
-          left = "E",
-          line_left = "E",
-          down = "H",
-          line_down = "H",
-          up = "L",
-          line_up = "L",
-          right = "N",
-          line_right = "N",
+          left = "<C-S-E>",
+          line_left = "<C-S-E>",
+          down = "<C-S-J>",
+          line_down = "<C-S-J>",
+          up = "<C-S-K>",
+          line_up = "<C-S-K>",
+          right = "<C-S-L>",
+          line_right = "<C-S-L>",
         },
       })
     end,
@@ -68,10 +68,10 @@ return {
       })
       mini.make_mappings("replace", { textobject = "u", line = "", selection = "" })
       mini.make_mappings("exchange", { textobject = "s", line = "", selection = "s" })
-      mini.make_mappings("multiply", { textobject = "j", line = "", selection = "j" })
+      mini.make_mappings("multiply", { textobject = "<Tab>", line = "", selection = "<Tab>" })
     end,
   },
 
-  { "kylechui/nvim-surround", event = "VeryLazy", },
+  { "kylechui/nvim-surround", event = "VeryLazy" },
   { "tpope/vim-abolish", event = "VeryLazy" },
 }

@@ -67,17 +67,17 @@ return {
       for offset, item in ipairs(block) do
         table.insert(items, to + offset - 1, item)
       end
-      harpoon:save()
+      harpoon:sync()
     end
 
     local buffer_move_keys =
-      { "<C-S-e>", "<C-S-j>", "<C-S-k>", "<C-S-l>", "<A-S-e>", "<A-S-j>", "<A-S-k>", "<A-S-l>", "<C-S-CR>" }
+      { "y<M-1>", "y<M-2>", "y<M-3>", "y<M-4>", "y<M-5>", "y<M-6>", "y<M-7>", "y<M-8>", "y<M-9>" }
     for i, k in ipairs(buffer_move_keys) do
-      vim.keymap.set({ "n", "i" }, k, function()
+      vim.keymap.set("n", k, function()
         local list = harpoon:list()
         local from = ensure_harpoon_index(list)
         local count = vim.v.count > 0 and vim.v.count or 1
-        local to = (k == "<C-S-CR>") and #list.items or i
+        local to = (k == "y<M-9>") and #list.items or i
         harpoon_move_block_to(from, count, to, list)
       end, { desc = "Harpoon: Move current file to slot " .. i .. " (use a count to bring following files along)" })
     end

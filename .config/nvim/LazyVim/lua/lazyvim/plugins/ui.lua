@@ -188,31 +188,14 @@ return {
       routes = {
         {
           filter = {
+            event = "msg_show",
             any = {
-              { find = "No information available" },
-              { find = "No signature help available" },
-              { find = "Formatter 'stylua' was interrupted" },
-              { find = "No active Snippet" },
-              { find = "completion request failed" },
-              { find = "[Neo-tree INFO] (fs) Skipping wait for gitignored items, since it took longer than 200 ms" },
-              { find = "lines yanked" },
-              { find = "vim.schedule callback: ...rar/.local/share/nvim/lazy/flash.nvim/lua/flash/jump.lua:" },
-              { find = "Error in FileType Autocommands for *" },
-              { find = "E5108" },
-              { find = "E73: Tag stack empty" },
-              { find = "E555: At bottom of tag stack" },
-              { find = "E565" },
-              { find = "E20: Mark not set" },
-              { find = "E19: Mark has invalid line number" },
-              { find = "Current line is not indented." },
-              { find = "Not allowed to change text" },
-              { find = "Formatter failed. See :ConformInfo for details" },
-              { find = "Error executing lua: ...al/share/nvim/runtime/lua/vim/treesitter/highlighter.lua:370" },
-              { event = "lsp", kind = "progress", find = "Processing" },
-              { event = "lsp", kind = "progress", find = "Diagnosing" },
+              { find = "%d+L, %d+B" },
+              { find = "; after #%d+" },
+              { find = "; before #%d+" },
             },
           },
-          opts = { skip = true },
+          view = "mini",
         },
       },
       presets = {
@@ -247,15 +230,14 @@ return {
         cmdline = { position = { row = 0 } },
       },
     },
+    -- stylua: ignore
+    keys = {
+      { "<C-J>", function() require("noice").redirect(vim.fn.getcmdline()) end, mode = "c", desc = "Redirect Cmdline" },
+      { "<leader>hy", function() require("noice").cmd("last") end, desc = "Noice Last Message" },
+      { "<C-S-H>", function() if not require("noice.lsp").scroll(8) then return "<c-f>" end end, silent = true, expr = true, desc = "Scroll Forward", mode = {"i", "n", "s"} },
+      { "<C-S-S>", function() if not require("noice.lsp").scroll(-8) then return "<c-b>" end end, silent = true, expr = true, desc = "Scroll Backward", mode = {"i", "n", "s"}},
+    },
     config = function(_, opts)
-      vim.keymap.set({ "n", "s" }, "<C-S-H>", function()
-        require("noice.lsp").scroll(8)
-      end, { silent = true, expr = true, desc = "Scroll down" })
-
-      vim.keymap.set({ "n", "s" }, "<C-S-S>", function()
-        require("noice.lsp").scroll(-8)
-      end, { silent = true, expr = true, desc = "Scroll up" })
-
       if vim.o.filetype == "lazy" then
         vim.cmd([[messages clear]])
       end

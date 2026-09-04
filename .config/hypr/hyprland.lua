@@ -1,15 +1,11 @@
 ---------------------
 ---- MY PROGRAMS ----
 ---------------------
-local my_nvim = " nvim -u ~/dotfiles/.config/nvim/init.lua "
-local my_kitty = " kitty --config ~/dotfiles/.config/kitty/default.conf "
-
 local firefox = "firefox"
-local nvim = my_kitty .. "--class kitty-nvim" .. my_nvim
-local terminal = my_kitty
-	.. "--config ~/dotfiles/.config/kitty/terminal.conf --class kitty-terminal sh -c 'tmux attach 2>/dev/null || tmux new-session'"
+local nvim = "kitty --class kitty-nvim nvim"
+local terminal = "kitty --config ~/dotfiles/.config/kitty/terminal.conf --class kitty-terminal "
 local clipboard = "copyq --start-server show"
-local fileManager = "env YAZI_CONFIG_HOME=/home/iqrar/dotfiles/.config/yazi" .. my_kitty .. "--class kitty-yazi -e yazi"
+local fileManager = "~/dotfiles/.config/yazi/bin/open"
 
 ------------------------
 ---- RULES ---
@@ -38,6 +34,7 @@ hl.window_rule({ name = "yazi-to-ws5", match = { class = "kitty-yazi" }, workspa
 
 -- See https://wiki.hypr.land/Configuring/Basics/Autostart/
 hl.on("hyprland.start", function()
+	hl.exec_cmd("trash-empty -f 30")
 	hl.exec_cmd("[workspace 1 silent] " .. firefox)
 	hl.exec_cmd("[workspace 2 silent] " .. nvim)
 	hl.exec_cmd("[workspace 3 silent] " .. terminal)
@@ -52,7 +49,6 @@ end)
 
 hl.env("XCURSOR_SIZE", "20")
 hl.env("HYPRCURSOR_SIZE", "20")
-hl.env("HYPRLAND_CONFIG", os.getenv("HOME") .. "/dotfiles/.config/hypr/hyprland.lua")
 
 -----------------------
 ---- LOOK AND FEEL ----
@@ -84,7 +80,6 @@ hl.config({
 	},
 
 	misc = {
-		focus_on_activate = true,
 		force_default_wallpaper = false,
 		disable_splash_rendering = true,
 		disable_hyprland_logo = true,
@@ -196,8 +191,13 @@ hl.bind(
 hl.bind("SHIFT + CTRL + ALT + SUPER + B", hl.dsp.exec_cmd("~/dotfiles/.local/bin/clipboard-slime-core --execute"))
 hl.bind("SHIFT + CTRL + ALT + SUPER + C", hl.dsp.exec_cmd("~/dotfiles/.local/bin/clipboard-slime-core --jump"))
 hl.bind("SHIFT + CTRL + ALT + SUPER + F", hl.dsp.exec_cmd("~/dotfiles/.local/bin/clipboard-run-and-copy"))
+hl.bind(
+	"SHIFT + CTRL + ALT + SUPER + Q",
+	hl.dsp.exec_cmd("~/dotfiles/.local/bin/clipboard-slime-core --jump --no-cancel")
+)
 
 hl.bind("SHIFT + CTRL + ALT + SUPER + M", hl.dsp.exec_cmd("~/dotfiles/.local/bin/toggle-theme"))
+hl.bind("SHIFT + CTRL + ALT + SUPER + W", hl.dsp.exec_cmd("~/dotfiles/.local/bin/sys_status"))
 
 hl.bind(
 	"SHIFT + CTRL + ALT + SUPER + U",

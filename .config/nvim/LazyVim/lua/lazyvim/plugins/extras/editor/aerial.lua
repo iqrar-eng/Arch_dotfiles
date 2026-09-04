@@ -63,8 +63,8 @@ return {
             require("aerial").select({ jump = false })
           end,
 
-          ["e"] = "actions.tree_close",
-          ["h"] = function()
+          ["h"] = "actions.tree_close",
+          ["j"] = function()
             local count = math.max(vim.v.count, 1)
             if count == 1 then
               require("aerial.actions").down_and_scroll.callback()
@@ -73,7 +73,7 @@ return {
               require("aerial").select({ jump = false })
             end
           end,
-          ["l"] = function()
+          ["k"] = function()
             local count = math.max(vim.v.count, 1)
             if count == 1 then
               require("aerial.actions").up_and_scroll.callback()
@@ -82,7 +82,7 @@ return {
               require("aerial").select({ jump = false })
             end
           end,
-          ["n"] = function()
+          ["l"] = function()
             local data = require("aerial.data")
             local aerial = require("aerial")
             local bufdata = data.get_or_create(0)

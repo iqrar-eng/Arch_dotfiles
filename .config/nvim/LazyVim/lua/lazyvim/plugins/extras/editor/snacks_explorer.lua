@@ -6,6 +6,7 @@ return {
       picker = {
         sources = {
           explorer = {
+            exclude = { ".git", ".github" },
             hidden = true,
             ignored = true,
             layout = { preset = "my_sidebar", preview = true },
@@ -27,8 +28,8 @@ return {
             win = {
               list = {
                 keys = {
-                  ["e"] = "explorer_close", -- close directory
-                  ["h"] = {
+                  ["h"] = "explorer_close", -- close directory
+                  ["j"] = {
                     function()
                       return vim.v.count > 1 and ("m'" .. vim.v.count .. "gj") or "gj"
                     end,
@@ -36,7 +37,7 @@ return {
                     expr = true,
                     desc = "move down (visual line)",
                   },
-                  ["l"] = {
+                  ["k"] = {
                     function()
                       return vim.v.count > 1 and ("m'" .. vim.v.count .. "gk") or "gk"
                     end,
@@ -44,7 +45,7 @@ return {
                     expr = true,
                     desc = "move up (visual line)",
                   },
-                  ["n"] = "confirm",
+                  ["l"] = "confirm",
                 },
               },
             },
@@ -54,11 +55,8 @@ return {
     },
     keys = {
       {
-        "<leader>et",
+        "<leader>ht",
         function()
-          if vim.fn.exists("*undotree#UndotreeIsVisible") == 1 and vim.fn["undotree#UndotreeIsVisible"]() == 1 then
-            vim.cmd.UndotreeHide()
-          end
           local explorer = Snacks.picker.get({ source = "explorer" })[1]
           if explorer then
             explorer:close()
@@ -129,58 +127,28 @@ return {
     "mbbill/undotree",
     cmd = "UndotreeToggle",
     keys = {
-      {
-        "<leader>ej",
-        function()
-          local explorer = Snacks.picker.get({ source = "explorer" })[1]
-          if explorer and not explorer.closed then
-            explorer:close()
-            vim.schedule(function()
-              vim.cmd.UndotreeToggle()
-            end)
-          else
-            vim.cmd.UndotreeToggle()
-          end
-        end,
-        desc = "Toggle Undotree (closes explorer first)",
-      },
+      { "<leader>hz", "<cmd>UndotreeToggle<CR>", desc = "Toggle Undotree (closes explorer first)" },
     },
     config = function()
-      vim.g.undotree_RelativeTimestamp = 1
-      vim.g.undotree_ShortIndicators = 1
-
-      vim.g.undotree_StatusLine = 0
-      vim.g.undotree_HelpLine = 0
-
-      vim.g.undotree_CustomUndotreeCmd = "topleft vertical 28 new"
-      vim.g.undotree_CustomDiffpanelCmd = "bottright 12 new"
+      vim.g.undotree_WindowLayout = 3
       vim.g.undotree_DiffAutoOpen = 0
-
+      vim.g.undotree_HelpLine = 0
       vim.cmd([[
       function! g:Undotree_CustomMap()
       noremap <buffer> <C-Home> gg<plug>UndotreeEnter
       noremap <buffer> <C-End> G<plug>UndotreeEnter
       noremap <buffer> <PageDown> <C-d>zz<plug>UndotreeEnter
       noremap <buffer> <PageUp> <C-u>zz<plug>UndotreeEnter
-      nnoremap <buffer><expr> h v:count > 1 ? "j\<Plug>UndotreeEnter" : "\<Plug>UndotreePreviousState"
-      nnoremap <buffer><expr> l v:count > 1 ? "k\<Plug>UndotreeEnter" : "\<Plug>UndotreeNextState"
-      noremap <buffer> n <plug>UndotreeEnter
-      nmap <buffer> <CR> <plug>UndotreeEnter<C-W>l
+      noremap <buffer><expr> j v:count > 1 ? "j\<Plug>UndotreeEnter" : "\<Plug>UndotreePreviousState"
+      noremap <buffer><expr> k v:count > 1 ? "k\<Plug>UndotreeEnter" : "\<Plug>UndotreeNextState"
+      noremap <buffer> l <plug>UndotreeEnter<C-W>h
       noremap <buffer> <C-S-Z> <plug>UndotreeRedo
       noremap <buffer> <C-Z> <plug>UndotreeUndo
       noremap <buffer> t <plug>UndotreeDiffToggle
       noremap <buffer> g? <plug>UndotreeHelp
       noremap <buffer> ? ?
-      noremap <buffer> c <plug>UndotreeClearHistory
-      noremap <buffer> d <plug>UndotreeDiffMark
-      noremap <buffer> D <plug>UndotreeClearDiffMark
       endfunction
       ]])
-
-      vim.g.undotree_TreeNodeShape = "▎"
-      vim.g.undotree_TreeReturnShape = "╲"
-      vim.g.undotree_TreeVertShape = "▏"
-      vim.g.undotree_TreeSplitShape = "╱"
     end,
   },
 }

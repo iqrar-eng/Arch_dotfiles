@@ -84,11 +84,9 @@ return {
     local up_down               = const({ "up", "down" })
     local and_or                = const({ "and", "or" })
     local min_max               = const({ "max", "min" })
-    local width_height          = const({ "height", "width" })
     local next_previous         = const({ "next", "previous" })
     local before_after          = const({ "after", "before" })
     local alt_ctrl_shift        = const({ "alt", "ctrl", "shift" })
-    local yes_no                = const({ "no", "yes" })
     local number_words_with_th  = const({ "first","second","third","fourth","fifth","sixth","seventh","eighth","ninth","tenth","eleventh","twelfth","thirteenth","fourteenth","fifteenth","sixteenth","seventeenth","eighteenth","nineteenth","twentieth","last" })
     local number_words          = const({ "zero","one","two","three","four","five","six","seven","eight","nine","ten","eleven","twelve","thirteen","fourteen","fifteen","sixteen","seventeen","eighteen","nineteen","twenty" }, { word = true })
     local months                = const({ "Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec", }, { word = true })
@@ -132,11 +130,9 @@ return {
           up_down,
           and_or,
           min_max,
-          width_height,
           next_previous,
           before_after,
           alt_ctrl_shift,
-          yes_no,
           number_words_with_th,
           number_words,
         },

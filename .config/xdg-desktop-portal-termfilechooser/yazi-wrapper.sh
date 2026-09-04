@@ -46,7 +46,7 @@ quote_string() {
 }
 
 # termcmd="${TERMCMD:-kitty --app-id 'yazi-selector' --title $(quote_string "$TITLE")}"
-termcmd="${TERMCMD:-kitty --config /home/iqrar/dotfiles/.config/kitty/default.conf --app-id 'yazi-selector' --title $(quote_string "$TITLE")}"
+termcmd="${TERMCMD:-kitty --app-id 'yazi-selector' --title $(quote_string "$TITLE")}"
 
 cleanup() {
   if [ -f "$tmpfile" ]; then

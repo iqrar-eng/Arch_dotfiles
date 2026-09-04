@@ -6,4 +6,4 @@ cmd=$(wl-paste --primary 2>/dev/null)
 out=$(bash -c "$cmd" 2>&1)
 printf '$ %s\n%s' "$cmd" "$out" | wl-copy
 
-~/dotfiles/.config/scripts/util/hyprland
+~/dotfiles/.config/hypr/bin/paste

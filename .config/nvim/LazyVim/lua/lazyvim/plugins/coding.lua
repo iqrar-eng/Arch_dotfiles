@@ -42,6 +42,7 @@ return {
     end,
   },
 
+  -- stylua: ignore
   {
     "chrisgrieser/nvim-various-textobjs",
     event = "VeryLazy",
@@ -54,169 +55,86 @@ return {
         notify = { whenObjectNotFound = false },
       })
 
-      local M = {}
-      local innerOuterMaps = {
-        subword = "m",
-        key = "c",
-        value = "v",
-        color = "o",
-        number = "g",
-        doubleSquareBrackets = "<Up>",
-        chainMember = "<Left>",
-        filepath = "<tab>",
-      }
-      local oneMaps = {
-        entireBuffer = "al",
-        url = "i<CR>",
-        nearEoL = "ia",
-        visibleInWindow = "ai",
-        emoji = "a<CR>",
-      }
+      -- inner/outer objects
+      vim.keymap.set({ "o", "x" }, "ae", '<cmd>lua require("various-textobjs").subword("outer")<CR>', { desc = "outer subword textobj" })
+      vim.keymap.set({ "o", "x" }, "ie", '<cmd>lua require("various-textobjs").subword("inner")<CR>', { desc = "inner subword textobj" })
 
-      function M.setup(disabledKeymaps)
-        local function keymap(...)
-          local args = { ... }
-          if vim.tbl_contains(disabledKeymaps, args[2]) then
-            return
-          end
-          vim.keymap.set(...)
-        end
-        for objName, map in pairs(oneMaps) do
-          keymap(
-            { "o", "x" },
-            map,
-            "<cmd>lua require('various-textobjs')." .. objName .. "()<CR>",
-            { desc = objName .. " textobj" }
-          )
-        end
-        for objName, map in pairs(innerOuterMaps) do
-          local name = " " .. objName .. " textobj"
-          keymap(
-            { "o", "x" },
-            "a" .. map,
-            "<cmd>lua require('various-textobjs')." .. objName .. "('outer')<CR>",
-            { desc = "outer" .. name }
-          )
-          keymap(
-            { "o", "x" },
-            "i" .. map,
-            "<cmd>lua require('various-textobjs')." .. objName .. "('inner')<CR>",
-            { desc = "inner" .. name }
-          )
-        end
-      end
-      M.setup({})
+      vim.keymap.set({ "o", "x" }, "ac", '<cmd>lua require("various-textobjs").key("outer")<CR>', { desc = "outer key textobj" })
+      vim.keymap.set({ "o", "x" }, "ic", '<cmd>lua require("various-textobjs").key("inner")<CR>', { desc = "inner key textobj" })
 
-      local function get_surrounding_indent_borders(count)
-        local esc = vim.api.nvim_replace_termcodes("<Esc>", true, false, true)
-        local startLn, endLn
-        for i = 1, count do
-          if i > 1 then
-            vim.api.nvim_feedkeys(esc, "x", false)
-            vim.api.nvim_win_set_cursor(0, { startLn + 1, 0 }) -- top border is content one level up
-          end
-          require("various-textobjs").indentation("outer", "outer")
-          vim.cmd.normal({ "V", bang = true })
-          local newStart = vim.api.nvim_buf_get_mark(0, "<")[1] - 1
-          local newEnd = vim.api.nvim_buf_get_mark(0, ">")[1] - 1
-          if i > 1 and newStart == startLn and newEnd == endLn then
-            break
-          end -- outermost reached
-          startLn, endLn = newStart, newEnd
-        end
-        return startLn, endLn
-      end
+      vim.keymap.set({ "o", "x" }, "av", '<cmd>lua require("various-textobjs").value("outer")<CR>', { desc = "outer value textobj" })
+      vim.keymap.set({ "o", "x" }, "iv", '<cmd>lua require("various-textobjs").value("inner")<CR>', { desc = "inner value textobj" })
 
-      local function collect_indent_borders(count)
-        local borders = {}
-        local curPos = vim.api.nvim_win_get_cursor(0)
-        for _ = 1, count do
-          vim.api.nvim_win_set_cursor(0, curPos)
-          require("various-textobjs").indentation("outer", "outer")
-          vim.cmd.normal({ "V", bang = true })
-          local startLn = vim.api.nvim_buf_get_mark(0, "<")[1] - 1
-          local endLn = vim.api.nvim_buf_get_mark(0, ">")[1] - 1
-          vim.cmd("normal! \27")
-          if #borders > 0 then
-            local prev = borders[#borders]
-            if startLn == prev.startLn and endLn == prev.endLn then
-              break
-            end
-          end
-          local startLine = vim.api.nvim_buf_get_lines(0, startLn, startLn + 1, false)[1]
-          local endLine = vim.api.nvim_buf_get_lines(0, endLn, endLn + 1, false)[1]
-          table.insert(borders, { startLn = startLn, endLn = endLn, startLine = startLine, endLine = endLine })
-          if startLn == 0 then
-            break
-          end
-          curPos = { startLn, 0 }
-        end
-        return borders
-      end
-      local function sorted_yank_lines(borders)
-        local entries = {}
-        for _, b in ipairs(borders) do
-          table.insert(entries, { ln = b.startLn, text = b.startLine })
-          table.insert(entries, { ln = b.endLn, text = b.endLine })
-        end
-        table.sort(entries, function(a, b)
-          return a.ln < b.ln
-        end)
-        return vim.tbl_map(function(e)
-          return e.text
-        end, entries)
-      end
+      vim.keymap.set({ "o", "x" }, "ao", '<cmd>lua require("various-textobjs").color("outer")<CR>', { desc = "outer color textobj" })
+      vim.keymap.set({ "o", "x" }, "io", '<cmd>lua require("various-textobjs").color("inner")<CR>', { desc = "inner color textobj" })
 
+      vim.keymap.set({ "o", "x" }, "ag", '<cmd>lua require("various-textobjs").number("outer")<CR>', { desc = "outer number textobj" })
+      vim.keymap.set({ "o", "x" }, "ig", '<cmd>lua require("various-textobjs").number("inner")<CR>', { desc = "inner number textobj" })
+
+      vim.keymap.set({ "o", "x" }, "a<Up>", '<cmd>lua require("various-textobjs").doubleSquareBrackets("outer")<CR>', { desc = "outer doubleSquareBrackets textobj" })
+      vim.keymap.set({ "o", "x" }, "i<Up>", '<cmd>lua require("various-textobjs").doubleSquareBrackets("inner")<CR>', { desc = "inner doubleSquareBrackets textobj" })
+
+      vim.keymap.set({ "o", "x" }, "a<Left>", '<cmd>lua require("various-textobjs").chainMember("outer")<CR>', { desc = "outer chainMember textobj" })
+      vim.keymap.set({ "o", "x" }, "i<Left>", '<cmd>lua require("various-textobjs").chainMember("inner")<CR>', { desc = "inner chainMember textobj" })
+
+      vim.keymap.set({ "o", "x" }, "a<Tab>", '<cmd>lua require("various-textobjs").filepath("outer")<CR>', { desc = "outer filepath textobj" })
+      vim.keymap.set({ "o", "x" }, "i<Tab>", '<cmd>lua require("various-textobjs").filepath("inner")<CR>', { desc = "inner filepath textobj" })
+
+      -- single (one-sided) objects
+      vim.keymap.set({ "o", "x" }, "al", '<cmd>lua require("various-textobjs").entireBuffer()<CR>', { desc = "entireBuffer textobj" })
+      vim.keymap.set({ "o", "x" }, "i<CR>", '<cmd>lua require("various-textobjs").url()<CR>', { desc = "url textobj" })
+      vim.keymap.set({ "o", "x" }, "ia", '<cmd>lua require("various-textobjs").nearEoL()<CR>', { desc = "nearEoL textobj" })
+      vim.keymap.set({ "o", "x" }, "ai", '<cmd>lua require("various-textobjs").visibleInWindow()<CR>', { desc = "visibleInWindow textobj" })
+      vim.keymap.set({ "o", "x" }, "a<CR>", '<cmd>lua require("various-textobjs").emoji()<CR>', { desc = "emoji textobj" })
       vim.keymap.set({ "o", "x" }, "il", '<cmd>lua require("various-textobjs").lineCharacterwise("inner")<CR>')
       vim.keymap.set({ "o", "x" }, "gl", '<cmd>lua require("various-textobjs").column("both")<CR>')
       vim.keymap.set({ "o", "x" }, "go", '<cmd>lua require("various-textobjs").column("down")<CR>')
       vim.keymap.set({ "o", "x" }, "gt", '<cmd>lua require("various-textobjs").column("up")<CR>')
 
-      local ns = vim.api.nvim_create_namespace("si")
-      local dur = 100
-      local function hl_borders(bufnr, borders)
-        for _, b in ipairs(borders) do
-          vim.hl.range(bufnr, ns, "IncSearch", { b.startLn, 0 }, { b.startLn, -1 }, { timeout = dur })
-          vim.hl.range(bufnr, ns, "IncSearch", { b.endLn, 0 }, { b.endLn, -1 }, { timeout = dur })
-        end
-      end
+    vim.keymap.set("n", "du", function()
+        -- select outer indentation
+        require("various-textobjs").indentation("outer", "outer")
 
-      local function si_multi(delete)
-        return function()
-          local startPos = vim.api.nvim_win_get_cursor(0)
-          local borders = collect_indent_borders(vim.v.count1)
-          if #borders == 0 then
-            return
-          end
-          hl_borders(vim.api.nvim_get_current_buf(), borders)
-          local yankLines = sorted_yank_lines(borders)
-          vim.fn.setreg("+", table.concat(yankLines, "\n") .. "\n")
-          if delete then
-            local seen, toDelete = {}, {}
-            for _, b in ipairs(borders) do
-              for _, ln in ipairs({ b.endLn, b.startLn }) do
-                if not seen[ln] then
-                  seen[ln] = true
-                  table.insert(toDelete, ln)
-                end
-              end
-            end
-            table.sort(toDelete, function(a, b)
-              return a > b
-            end)
-            for _, ln in ipairs(toDelete) do
-              vim.api.nvim_buf_set_lines(0, ln, ln + 1, false, {})
-            end
-            vim.api.nvim_win_set_cursor(0, { math.min(startPos[1], vim.api.nvim_buf_line_count(0)), startPos[2] })
-          else
-            vim.api.nvim_win_set_cursor(0, startPos)
-          end
-          vim.notify(table.concat(yankLines, "\n"), delete and vim.log.levels.WARN or vim.log.levels.INFO)
-        end
-      end
+        -- plugin only switches to visual mode when a textobj has been found
+        local indentationFound = vim.fn.mode():find("V")
+        if not indentationFound then return end
 
-      vim.keymap.set("n", "du", si_multi(true), { desc = "Delete Surrounding Indent(s)" })
-      vim.keymap.set("n", "su", si_multi(false), { desc = "Yank Surrounding Indent(s)" })
+        -- dedent indentation
+        vim.cmd.normal { "<", bang = true }
+
+        -- delete surrounding lines
+        local endBorderLn = vim.api.nvim_buf_get_mark(0, ">")[1]
+        local startBorderLn = vim.api.nvim_buf_get_mark(0, "<")[1]
+        vim.cmd(tostring(endBorderLn) .. " delete") -- delete end first so line index is not shifted
+        vim.cmd(tostring(startBorderLn) .. " delete")
+    end, { desc = "Delete Surrounding Indentation" })
+
+    vim.keymap.set("n", "yu", function()
+        local startPos = vim.api.nvim_win_get_cursor(0)
+
+        -- identify start- and end-border
+        require("various-textobjs").indentation("outer", "outer")
+        local indentationFound = vim.fn.mode():find("V")
+        if not indentationFound then return end
+        vim.cmd.normal { "V", bang = true } -- leave visual mode so the '< '> marks are set
+
+        -- copy them into the + register
+        local startLn = vim.api.nvim_buf_get_mark(0, "<")[1] - 1
+        local endLn = vim.api.nvim_buf_get_mark(0, ">")[1] - 1
+        local startLine = vim.api.nvim_buf_get_lines(0, startLn, startLn + 1, false)[1]
+        local endLine = vim.api.nvim_buf_get_lines(0, endLn, endLn + 1, false)[1]
+        vim.fn.setreg("+", startLine .. "\n" .. endLine .. "\n")
+
+        -- highlight yanked text
+        local dur = 100
+        local ns = vim.api.nvim_create_namespace("ysii")
+        local bufnr = vim.api.nvim_get_current_buf()
+        vim.hl.range(bufnr, ns, "IncSearch", { startLn, 0 }, { startLn, -1 }, { timeout = dur })
+        vim.hl.range(bufnr, ns, "IncSearch", { endLn, 0 }, { endLn, -1 }, { timeout = dur })
+
+        -- restore cursor position
+        vim.api.nvim_win_set_cursor(0, startPos)
+    end, { desc = "Yank surrounding indentation" })
     end,
   },
 }

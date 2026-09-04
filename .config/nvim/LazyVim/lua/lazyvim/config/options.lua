@@ -78,6 +78,7 @@ vim.o.showtabline = 0
 vim.filetype.add({
   pattern = {
     ["vimiumc.*%.conf"] = "toml",
+    ["/*.rasi"] = "toml",
     [".blerc"] = "bash",
   },
   filename = {

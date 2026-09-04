@@ -6,11 +6,11 @@
     width = (0, 300) # width between 0 and 300
     height = (0, 300) # height between 0 and 300
     frame_width = 0
-    show_age_threshold = 5m
+    show_age_threshold = 10m
     background = "#00000000"
 
 [battery-check]
     appname = "battery-check"
+    foreground = "#FFFFFFFF"
     timeout = 0
     format = "%i %p"
-    foreground = "#FFFFFFFF"

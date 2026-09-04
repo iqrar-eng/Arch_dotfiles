@@ -22,7 +22,7 @@ require("lazy").setup({
 	spec = {
 		{
 			"LazyVim/LazyVim",
-			dir = vim.env.HOME .. "/dotfiles/.config/nvim/LazyVim",
+			dir = vim.env.HOME .. "/.config/nvim/LazyVim",
 			import = "lazyvim.plugins",
 		},
 	},

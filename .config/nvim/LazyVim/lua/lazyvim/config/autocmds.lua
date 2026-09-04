@@ -73,17 +73,6 @@ vim.api.nvim_create_autocmd("BufReadPost", {
   end,
 })
 
--- Fix conceallevel for json files
--- ========================
-
-vim.api.nvim_create_autocmd({ "FileType" }, {
-  group = augroup("json_conceal"),
-  pattern = { "json", "jsonc", "json5" },
-  callback = function()
-    vim.opt_local.conceallevel = 0
-  end,
-})
-
 -- Auto create dir when saving a file, in case some intermediate directory does not exist
 -- ========================
 
@@ -363,67 +352,9 @@ vim.api.nvim_create_autocmd({ "CursorMoved", "CursorMovedI", "CursorHold", "Curs
 
 vim.schedule(bump_and_redraw)
 
--- ========================
-
-local function set_domxref_colors()
-  vim.cmd([[
-    highlight link daa SnacksIndent12
-    highlight link dca SnacksIndent12
-    highlight link dba DiagnosticVirtualTextInfo
-    highlight link dha @my_markup.raw.markdown_inline
-    ]])
-end
-
-vim.api.nvim_create_autocmd("FileType", {
-  pattern = { "markdown", "markdown.mdx" },
-  callback = function(args)
-    set_domxref_colors()
-    vim.opt_local.wrap = true
-
-    if args.match == "markdown.mdx" then
-      vim.cmd([[
-        syntax match markdownDirectiveClose /^:::/ conceal
-        syntax match markdownDirectiveClose /:::\w\+/ conceal
-        syntax match markdownDirectiveClose /^<\/Callout>$/ conceal
-        syntax match markdownDirectiveClose /\*\*Notes\*\*$/ conceal
-        syntax match markdownDirectiveClose /\/\/ \[!code highlight\]/ conceal
-        syntax match dhmarker /###\s\+/ conceal
-        syntax match dhmarker /\/\*\*/ conceal
-        syntax match dhmarker /\*\// conceal
-        ]])
-    else
-      vim.cmd([[
-      syntax match df /^\s*-\s\zs:\s/ conceal
-      syntax match dhmarker /{{\w\+}}/ conceal
-      syntax match dhmarker /{\/.*\/}/ conceal
-
-      "{{domxref("visible")}}
-      syntax region da matchgroup=dd start=/{{\w\+(['"]/ end=/['"])}}/ contains=daa concealends
-      syntax match daa /[^'"]\+/ contained
-
-      "{{domxref("foo", "visible")}}
-      "{{domxref(foo, "visible")}}
-      syntax region dc matchgroup=dd start=/{{\w\+(\%(['"][^'"]*['"]\|\w\+\),\s*['"]/ end=/['"]\%(,\s*[^)]*\)\?)}}/ contains=dca concealends
-      syntax match dca /[^'"]\+/ contained
-
-      "{{foo_visible}}
-      "{{foo-bar_visible}}
-      syntax region db matchgroup=dd start=/{{\ze[[:alnum:]_-]\+_[[:alnum:]_-]\+}}/ end=/}}/ contains=dba,dbb concealends
-      syntax match dba /[[:alnum:]_-]\+\ze_[[:alnum:]_-]\+}}/ contained
-      syntax match dbb /_[[:alnum:]_-]\+\ze}}/ contained conceal
-
-      "<CodeStep step={1}>visible</CodeStep>
-      syntax region dh matchgroup=dd start=/<CodeStep\_[^>]*>/ end=/<\/CodeStep>/ contains=dha concealends
-      syntax match dha /[^<]\+/ contained
-      ]])
-    end
-  end,
-})
-
 vim.api.nvim_create_autocmd("ColorScheme", {
   callback = function()
     apply_highlights()
-    set_domxref_colors()
   end,
 })
 
@@ -445,16 +376,16 @@ vim.api.nvim_create_autocmd("BufEnter", {
   end,
 })
 
-vim.api.nvim_create_autocmd("FileType", {
-  group = augroup("man_unlisted"),
-  pattern = { "man", "help" },
-  callback = function(event)
-    local buf = vim.api.nvim_get_current_buf()
-    vim.bo[buf].buflisted = true
-    vim.bo[buf].buftype = "" -- remove nofile so it shows in buffers picker
-    vim.bo[buf].bufhidden = "hide" -- ← keep buffer alive so C-^ / e # can reach it
-
-    vim.keymap.del("n", "j", { buffer = true })
-    vim.keymap.del("n", "k", { buffer = true })
-  end,
-})
+-- vim.api.nvim_create_autocmd("FileType", {
+--   group = augroup("man_unlisted"),
+--   pattern = { "man", "help" },
+--   callback = function(event)
+--     local buf = vim.api.nvim_get_current_buf()
+--     vim.bo[buf].buflisted = true
+--     vim.bo[buf].buftype = ""
+--     vim.bo[buf].bufhidden = "hide"
+--
+--     pcall(vim.keymap.del, "n", "j", { buffer = true })
+--     pcall(vim.keymap.del, "n", "k", { buffer = true })
+--   end,
+-- })

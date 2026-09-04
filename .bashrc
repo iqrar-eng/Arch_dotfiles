@@ -29,12 +29,8 @@ shopt -s cdspell
 if [[ -n $SSH_CONNECTION ]]; then
   export EDITOR='vim'
 else
-  export EDITOR='nvim -u $HOME/dotfiles/.config/nvim/init.lua'
+  export EDITOR='nvim'
 fi
-export VISUAL='nvim -u $HOME/dotfiles/.config/nvim/init.lua'
-export SUDO_EDITOR='nvim -u $HOME/dotfiles/.config/nvim/init.lua'
-
-# export YAZI_CONFIG_HOME="$HOME/dotfiles/.config/yazi"
 
 set -o vi
 

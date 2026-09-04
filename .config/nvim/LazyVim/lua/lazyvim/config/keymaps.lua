@@ -1,16 +1,3 @@
--- utility_functions START ===================================================================
-
-local paste_from_clipboard = function()
-  local clipboard = vim.fn.getreg("+")
-  if vim.api.nvim_get_mode().mode == "c" then
-    local cur = vim.fn.getcmdline()
-    local pos = vim.fn.getcmdpos()
-    vim.fn.setcmdline(cur:sub(1, pos - 1) .. clipboard .. cur:sub(pos), pos + #clipboard)
-  else
-    vim.api.nvim_paste(clipboard, true, -1)
-  end
-end
-
 local function make_window_jump(win_cmd, move_cmd, input_keys, esc_replace_mode)
   return function()
     local count = vim.v.count1
@@ -57,35 +44,50 @@ local function make_window_jump(win_cmd, move_cmd, input_keys, esc_replace_mode)
   end
 end
 
--- utility_functions END ===================================================================
+vim.keymap.set({ "n", "i" }, "<C-PageDown>", make_window_jump("1w", "j", "l", "n"), {})
+vim.keymap.set({ "n", "i" }, "<C-S-PageDown>", make_window_jump("1w", "<C-End>", "l", "O"), {})
+vim.keymap.set({ "n", "i" }, "<C-PageUp>", make_window_jump("1w", "k", "l", "O"), {})
+vim.keymap.set({ "n", "i" }, "<C-S-PageUp>", make_window_jump("1w", "<C-Home>", "l", "O"), {})
+
+vim.keymap.set({ "n", "i", "x" }, "<C-P>", make_window_jump("9l", "k", "l", "O"), {})
+vim.keymap.set({ "n", "i", "x" }, "<C-S-P>", make_window_jump("9l", "<C-Home>", "l", "O"), {})
+vim.keymap.set({ "n", "i", "x" }, "<C-G>", make_window_jump("9l", "j", "l", "n"), {})
+vim.keymap.set({ "n", "i", "x" }, "<C-S-G>", make_window_jump("9l", "<C-End>", "l", "n"), {})
+
+-- ========================
 
 vim.keymap.set({ "n", "o" }, "<M-C-D>", "*<cmd>nohlsearch<CR>", { silent = true })
 vim.keymap.set("x", "<M-C-D>", "<Esc>*gvn<cmd>nohlsearch<CR>", { silent = true })
 vim.keymap.set({ "n", "o" }, "<M-C-A>", "#<cmd>nohlsearch<CR>", { silent = true })
 vim.keymap.set("x", "<M-C-A>", "<Esc>#gvn<cmd>nohlsearch<CR>", { silent = true })
 
-vim.keymap.set({ "n", "x", "o" }, "m", "e")
-vim.keymap.set({ "n", "x", "o" }, "M", "E")
-vim.keymap.set({ "n", "x", "o" }, "gm", "ge")
-vim.keymap.set({ "n", "x", "o" }, "gM", "gE")
-
-vim.keymap.set("n", "<C-R>", "<C-i>")
-vim.keymap.set({ "n", "x", "o" }, "ge", "gM")
-vim.keymap.set("n", "<leader>^", "m")
-
 vim.keymap.set("n", "ZR", function()
+  local explorer = Snacks.picker.get({ source = "explorer" })[1]
+  if explorer then
+    explorer:close()
+  end
+  vim.defer_fn(function()
+    vim.cmd("w")
+  end, 50)
   vim.defer_fn(function()
     vim.cmd("normal! 8ZR")
-  end, 500)
-  vim.cmd("wa")
+  end, 200)
 end, { desc = "Reload nvim" })
 
 vim.keymap.set("n", "<C-Q>", function()
-  vim.cmd("w")
+  local explorer = Snacks.picker.get({ source = "explorer" })[1]
+  if explorer then
+    explorer:close()
+  end
+  vim.defer_fn(function()
+    vim.cmd("w")
+  end, 50)
   vim.defer_fn(function()
     vim.cmd("qa!")
-  end, 50)
+  end, 200)
 end, { desc = "Quit nvim" })
+
+vim.keymap.set("n", "<C-R>", "<C-i>")
 
 vim.keymap.set("n", "<esc>", function()
   local cc_map = vim.fn.maparg("<C-c>", "n", false, true)
@@ -95,10 +97,6 @@ vim.keymap.set("n", "<esc>", function()
   vim.cmd("noh")
   return "<esc>"
 end, { expr = true, desc = "Escape and Clear hlsearch" })
-
-vim.keymap.set({ "c", "i" }, "<C-x>", "<Insert>")
-vim.keymap.set("c", "<C-S-G>", "<C-t>")
-vim.keymap.set("c", "<M-C-Q>", "<C-f>")
 
 -- ========================
 
@@ -125,7 +123,7 @@ end, { silent = true, desc = "visual extend/shrink horizontally" })
 
 -- ========================
 
-vim.keymap.set("n", "<leader>ev", function()
+vim.keymap.set("n", "<leader>hv", function()
   local file = vim.fn.expand("%")
   if vim.fn.executable(file) == 1 then
     vim.cmd("!chmod -x " .. file)
@@ -136,8 +134,10 @@ vim.keymap.set("n", "<leader>ev", function()
   end
 end, { desc = "toggle chmod +x/-x" })
 
-vim.keymap.set("n", "<leader>eb", "<cmd>source %<CR>", { desc = "Source current file" })
-vim.keymap.set("n", "<leader>aj", "<cmd>!keyd reload<CR>", { desc = "Reload keyd" })
+vim.keymap.set("n", "<leader>hb", "<cmd>source %<CR>", { desc = "Source current file" })
+vim.keymap.set("n", "<leader>az", "<cmd>!keyd reload<CR>", { desc = "Reload keyd" })
+vim.keymap.set("n", "<leader>ab", "<cmd>Lazy<CR>")
+vim.keymap.set("n", "<leader>ae", "<cmd>Mason<CR>")
 
 vim.keymap.set("n", "<leader>a}", function()
   for _, win in ipairs(vim.api.nvim_list_wins()) do
@@ -176,57 +176,19 @@ vim.keymap.set("i", ".", ".<c-g>u")
 vim.keymap.set("i", ";", ";<c-g>u")
 vim.keymap.set("i", ":", ":<c-g>u")
 
-vim.keymap.set("n", "k", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next Search Result" })
-vim.keymap.set("n", "K", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Search Result" })
-vim.keymap.set({ "x", "o" }, "k", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result" })
-vim.keymap.set({ "x", "o" }, "K", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
+vim.keymap.set("n", "n", "'Nn'[v:searchforward].'zv'", { expr = true, desc = "Next Search Result" })
+vim.keymap.set("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Prev Search Result" })
+vim.keymap.set({ "x", "o" }, "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result" })
+vim.keymap.set({ "x", "o" }, "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 
-vim.keymap.set("n", "<leader>ah", "K")
-
-vim.keymap.set({ "n", "x" }, "gJ", function()
-  local count = vim.v.count1
-  vim.cmd("normal! mz" .. count .. "gJ`z")
-end)
-vim.keymap.set({ "n", "x" }, "J", function()
-  local count = vim.v.count1
-  vim.cmd("normal! mz" .. count .. "J`z")
-end)
-
-vim.keymap.set({ "n", "i" }, "<M-C-Q>", "<C-^>")
+vim.keymap.set({ "n", "i" }, "<M-C-7>", "<C-^>")
 vim.keymap.set("n", "<PageDown>", "<C-d>zz")
 vim.keymap.set("n", "<PageUp>", "<C-u>zz")
 
-vim.keymap.set({ "n", "x" }, "<leader>d", '"zd')
-vim.keymap.set({ "n", "x" }, "<leader>c", '"zc')
-vim.keymap.set({ "n", "x" }, "<leader>y", '"zy')
-
-vim.keymap.set({ "n", "x" }, "<leader>p", '"zp')
-vim.keymap.set({ "n", "x" }, "<leader>P", '"zP')
-vim.keymap.set({ "n", "x" }, "<Del>P", '"zP')
-
 vim.keymap.set("s", "<Del>", "<BS>i")
-vim.keymap.set({ "c", "i" }, "<C-V>", paste_from_clipboard)
 
-vim.keymap.set("n", "<leader>x", '"zx')
-vim.keymap.set("n", "<leader>X", '"zX')
-vim.keymap.set("n", "<Del>X", '"zX')
-
-vim.keymap.set({ "n", "i" }, "<C-PageDown>", make_window_jump("1w", "h", "\r", "n"), {})
-vim.keymap.set({ "n", "i" }, "<C-S-PageDown>", make_window_jump("1w", "<C-End>", "\r", "O"), {})
-vim.keymap.set({ "n", "i" }, "<C-PageUp>", make_window_jump("1w", "l", "\r", "O"), {})
-vim.keymap.set({ "n", "i" }, "<C-S-PageUp>", make_window_jump("1w", "<C-Home>", "\r", "O"), {})
-
-vim.keymap.set({ "n", "i", "x" }, "<C-P>", make_window_jump("9l", "l", "\r", "O"), {})
-vim.keymap.set({ "n", "i", "x" }, "<C-S-P>", make_window_jump("9l", "<C-Home>", "\r", "O"), {})
-vim.keymap.set({ "n", "i", "x" }, "<C-G>", make_window_jump("9l", "h", "\r", "n"), {})
-vim.keymap.set({ "n", "i", "x" }, "<C-S-G>", make_window_jump("9l", "<C-End>", "\r", "n"), {})
-
-vim.keymap.set({ "n", "x", "o" }, "e", "h")
-vim.keymap.set({ "n", "x", "o" }, "n", "l")
-vim.keymap.set({ "n", "x" }, "h", "v:count > 1 ? \"m'\" . v:count . 'gj' : 'gj'", { expr = true })
-vim.keymap.set({ "n", "x" }, "l", "v:count > 1 ? \"m'\" . v:count . 'gk' : 'gk'", { expr = true })
-vim.keymap.set("o", "h", "j")
-vim.keymap.set("o", "l", "k")
+vim.keymap.set({ "n", "x" }, "j", "v:count > 1 ? \"m'\" . v:count . 'j' : 'j'", { expr = true })
+vim.keymap.set({ "n", "x" }, "k", "v:count > 1 ? \"m'\" . v:count . 'k' : 'k'", { expr = true })
 
 vim.keymap.set({ "n", "x" }, "-", "v:count > 1 ? \"m'\" . v:count . '-' : '-'", { expr = true })
 vim.keymap.set({ "n", "x" }, "+", "v:count > 1 ? \"m'\" . v:count . '+' : '+'", { expr = true })
@@ -239,95 +201,141 @@ vim.keymap.set({ "n", "x" }, "<End>", function()
   return vim.v.count > 1 and ("m'" .. vim.v.count .. "gj$") or "$"
 end, { expr = true })
 
-vim.keymap.set("n", "<leader>i", function()
-  vim.cmd("put! =repeat(nr2char(10), v:count1)")
-  vim.cmd("'[")
-end, { silent = true })
-vim.keymap.set("n", "<leader>o", function()
-  vim.cmd("put =repeat(nr2char(10), v:count1)")
-end, { silent = true })
+-- ========================
+
+local function yank_motion_text(type)
+  local rv, rt = vim.fn.getreg('"'), vim.fn.getregtype('"')
+  if type == "line" then
+    vim.cmd("normal! '[V']y")
+  elseif type == "block" then
+    vim.cmd("normal! `[\22`]y")
+  else
+    vim.cmd("normal! `[v`]y")
+  end
+  local text = vim.fn.getreg('"')
+  vim.fn.setreg('"', rv, rt)
+  return text
+end
+
+local function yank_selection_text()
+  local rv, rt = vim.fn.getreg('"'), vim.fn.getregtype('"')
+  vim.cmd("normal! y")
+  local text = vim.fn.getreg('"')
+  vim.fn.setreg('"', rv, rt)
+  return text
+end
+
+local cmd = "hyprctl dispatch 'hl.dsp.focus({ workspace = \"1\" })' && ~/dotfiles/.config/hypr/bin/paste"
+
+local function bind_send(lhs, cmd, register)
+  local global_name = "SlimeBrowserSendOp_" .. lhs:gsub("[^%w]", "_")
+  _G[global_name] = function(type)
+    vim.fn.setreg(register, yank_motion_text(type))
+    vim.fn.jobstart(cmd, { detach = true })
+  end
+  vim.keymap.set("n", lhs, function()
+    vim.o.operatorfunc = "v:lua." .. global_name
+    return "g@"
+  end, { expr = true, desc = "Send motion to browser" })
+  vim.keymap.set("x", lhs, function()
+    vim.fn.setreg(register, yank_selection_text())
+    vim.fn.jobstart(cmd, { detach = true })
+  end, { desc = "Send selection to browser" })
+end
+
+bind_send("<leader>f", cmd, "+")
 
 -- ========================
 
-vim.keymap.set("n", "<C-D>", function()
-  local modifier = ""
-  if vim.v.count > 0 then
-    modifier = modifier .. string.rep(":h", vim.v.count)
+local function bind_send_text(lhs, base_cmd)
+  local global_name = "SlimeBrowserSendTextOp_" .. lhs:gsub("[^%w]", "_")
+  _G[global_name] = function(type)
+    local text = yank_motion_text(type)
+    vim.fn.jobstart({ "sh", "-c", base_cmd .. " --text " .. vim.fn.shellescape(text) }, { detach = true })
   end
-  local path = vim.fn.expand("%:p" .. modifier)
-  vim.fn.system("wl-copy", path)
-  vim.notify(path, vim.log.levels.INFO)
-end, { desc = "Copy absolute path N levels up" })
+  vim.keymap.set("n", lhs, function()
+    vim.o.operatorfunc = "v:lua." .. global_name
+    return "g@"
+  end, { expr = true, desc = "Send motion text via --text" })
+  vim.keymap.set("x", lhs, function()
+    local text = yank_selection_text()
+    vim.fn.jobstart({ "sh", "-c", base_cmd .. " --text " .. vim.fn.shellescape(text) }, { detach = true })
+  end, { desc = "Send selection text via --text" })
+end
 
-vim.keymap.set("n", "<M-g>", function()
-  local path = vim.api.nvim_buf_get_name(0)
-  if path == "" then
-    vim.notify("No file in current buffer", vim.log.levels.WARN)
-    return
+bind_send_text("<leader>r", "~/dotfiles/.local/bin/clipboard-slime-core --jump")
+bind_send_text("<leader>w", "~/dotfiles/.local/bin/clipboard-slime-core --execute")
+bind_send_text("<leader>q", "~/dotfiles/.local/bin/clipboard-slime-core --jump --execute")
+bind_send_text("<leader>m", "~/dotfiles/.local/bin/clipboard-slime-core --jump --no-cancel")
+
+-- ========================
+
+vim.keymap.set("n", "<leader>a[", function()
+  vim.cmd("normal! mz")
+  vim.cmd("put! ='stylua: ignore'")
+  vim.cmd("normal gcc")
+  vim.cmd("normal! ==`z")
+  vim.cmd("undojoin")
+end, { silent = true, desc = "stylua: ignore above" })
+
+vim.keymap.set("n", "<leader>a]", function()
+  vim.cmd("normal! mz")
+  vim.cmd("put ='========================'")
+  vim.cmd("normal gcc")
+  vim.cmd("put =''")
+  vim.cmd("normal! =k`z")
+  vim.cmd("undojoin")
+end, { silent = true, desc = "separator below" })
+
+vim.keymap.set({ "n", "x", "o" }, "<BS>8", "<Esc>vie*", { remap = true })
+vim.keymap.set({ "n", "x", "o" }, "<BS>9", "<Esc>vie#", { remap = true })
+
+vim.keymap.set({ "n", "x", "o" }, "<BS>*", "<Esc>viW*", { remap = true })
+vim.keymap.set({ "n", "x", "o" }, "<BS>#", "<Esc>viW#", { remap = true })
+
+vim.keymap.set({ "n", "x", "o" }, "|", "/\\V")
+vim.keymap.set({ "n", "x", "o" }, "\\", "?\\V")
+
+vim.keymap.set({ "n", "x", "o" }, "<Left>", "<nop>")
+vim.keymap.set({ "n", "x", "o" }, "<Right>", "<nop>")
+vim.keymap.set({ "n", "x", "o" }, "<Down>", "<nop>")
+vim.keymap.set({ "n", "x", "o" }, "<Up>", "<nop>")
+vim.keymap.set({ "n", "x", "o" }, "<Del>", "<nop>")
+vim.keymap.set({ "n", "x", "o" }, ">", "<nop>")
+vim.keymap.set({ "n", "x", "o" }, "<", "<nop>")
+vim.keymap.set({ "x", "o" }, "<LeftMouse>", "<nop>")
+vim.keymap.set({ "x", "o" }, "<RightMouse>", "<nop>")
+
+Snacks.toggle.option("wrap"):map("<leader>hr")
+
+vim.keymap.set("x", "<leader>o", ':g#^$#normal! "_dd<CR><Cmd>noh<CR>', { silent = true, desc = "Delete blank lines" })
+vim.keymap.set("n", "<leader>a<CR>", ":let @+=@:<Left><Insert>", { desc = "let @+ =@x" })
+
+-- ========================
+
+vim.keymap.set("i", "<C-S-End><Del>", '<C-Home><C-v><Esc>"zd<C-End>', { remap = true, silent = true })
+
+vim.keymap.set("c", "<S-End><Del><BS>", '<c-f>"zD<C-c>')
+
+vim.keymap.set({ "c", "i" }, "<C-BS>", "<C-s-w>")
+vim.keymap.set({ "c", "i" }, "<S-Home><BS>", "<C-u>")
+
+vim.keymap.set("i", "<C-Del>", function()
+  local col = vim.fn.col(".")
+  if col == 1 then
+    return '<esc>"zdei'
+  else
+    return '<esc>l"zdei'
   end
-  local explorer = require("snacks.explorer.actions").trash(path)
-end, { desc = "Trash current file" })
+end, { expr = true })
+vim.keymap.set("c", "<C-Del>", '<c-f>"zde<C-c>')
 
-vim.keymap.set("n", "<C-S-B>", function()
-  local p = vim.fn.expand("%:p")
-  local count = vim.v.count
-  local path = count == 0 and p or vim.fn.fnamemodify(p, string.rep(":h", count))
-  local uri = vim.uri_from_fname(path)
-  local script = string.format("copy('text/uri-list','%s','x-special/gnome-copied-files','copy\\n%s')", uri, uri)
-  vim.fn.jobstart({ "copyq", "eval", "--", script })
-  vim.notify(uri, vim.log.levels.INFO)
-end, { desc = "yank_file_uri" })
-
-vim.keymap.set("n", "<leader>ec", function()
-  local file_src = vim.api.nvim_buf_get_name(0)
-  if file_src == "" then
-    vim.notify("No file in buffer", vim.log.levels.WARN)
-    return
+vim.keymap.set("i", "<S-End><Del>", function()
+  local col = vim.fn.col(".")
+  if col == 1 then
+    return '<esc>"zd$a'
+  else
+    return '<esc>l"zd$a'
   end
-  vim.ui.input({ prompt = "Copy to ", default = file_src, completion = "file" }, function(file_out)
-    if not file_out or file_out == "" then
-      return
-    end
-    local dir = vim.fn.fnamemodify(file_out, ":h")
-    local res = vim.fn.system({ "mkdir", "-p", dir })
-    if vim.v.shell_error ~= 0 then
-      vim.notify(res, vim.log.levels.ERROR)
-      return
-    end
-    vim.fn.system({ "cp", "-R", file_src, file_out })
-    if vim.v.shell_error ~= 0 then
-      vim.notify("Copy failed", vim.log.levels.ERROR)
-      return
-    end
-    vim.notify("Copied to " .. file_out, vim.log.levels.INFO)
-    vim.cmd("edit " .. vim.fn.fnameescape(file_out))
-  end)
-end, { desc = "Copy File To" })
-
-vim.keymap.set("n", "<leader>ex", function()
-  local file_src = vim.api.nvim_buf_get_name(0)
-  if file_src == "" then
-    vim.notify("No file in buffer", vim.log.levels.WARN)
-    return
-  end
-  vim.ui.input({ prompt = "Move to ", default = file_src, completion = "file" }, function(file_out)
-    if not file_out or file_out == "" then
-      return
-    end
-    local dir = vim.fn.fnamemodify(file_out, ":h")
-    local res = vim.fn.system({ "mkdir", "-p", dir })
-    if vim.v.shell_error ~= 0 then
-      vim.notify(res, vim.log.levels.ERROR)
-      return
-    end
-    vim.fn.system({ "mv", file_src, file_out })
-    if vim.v.shell_error ~= 0 then
-      vim.notify("Move failed", vim.log.levels.ERROR)
-      return
-    end
-    vim.notify("Moved to " .. file_out, vim.log.levels.INFO)
-    vim.cmd("edit " .. vim.fn.fnameescape(file_out))
-  end)
-end, { desc = "Move File To" })
-
-require("lazyvim.config.keymaps-beta")
+end, { expr = true })
+vim.keymap.set("c", "<S-End><Del>", '<c-f>"zD<C-c>')

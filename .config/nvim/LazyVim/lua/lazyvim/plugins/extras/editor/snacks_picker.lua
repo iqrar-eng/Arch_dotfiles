@@ -11,7 +11,6 @@ local globs = {
   "**license**",
   "**License**",
   "**LICENSE**",
-  "**/.local/bin**",
   "**/.local/lib**",
   "**/.local/state/**",
   "**.log",
@@ -32,16 +31,18 @@ local globs = {
   "**/undodir/**",
 }
 
+local function up(path, count)
+  for _ = 1, count do
+    path = vim.fn.fnamemodify(path, ":h")
+  end
+  return path
+end
+
 local function get_basedir()
   local count = vim.v.count
   local buf_path = vim.api.nvim_buf_get_name(0)
   local base = buf_path ~= "" and vim.fn.fnamemodify(buf_path, ":h") or vim.uv.cwd()
-  if count > 0 then
-    for _ = 1, count do
-      base = vim.fn.fnamemodify(base, ":h")
-    end
-  end
-  return base
+  return count > 0 and up(base, count) or base
 end
 
 if lazyvim_docs then
@@ -77,7 +78,6 @@ return {
   {
     "folke/snacks.nvim",
     opts = {
-      lazygit = { win = { width = 0, height = 0 } },
       scratch = {
         autowrite = false, -- prevent the callback that re-hides the buffer
         win_by_ft = { lua = { keys = { ["source"] = false, }, }, },
@@ -122,6 +122,7 @@ return {
       },
       scroll = { enabled = false },
       statuscolumn = { enabled = false }, -- we set this in options.lua
+      lazygit = { enabled = false },
       image = { doc = { inline = false } },
       input = { win = { b = { completion = true } } },
       toggle = { map = LazyVim.safe_keymap_set },
@@ -416,27 +417,24 @@ return {
               ["<C-c>"] = { "cancel", mode = { "n", "x", "s", "i" } },
               ["<M-s>"] = { "yank_preview", mode = { "n", "x", "s", "i" } },
               ["<M-d>"] = { "yank_list", mode = { "n", "x", "s", "i" } },
+
               ["<C-D>"] = { "explorer_yank", mode = { "n", "x", "s", "i" } },
-              ["<M-g>"] = { "explorer_del", mode = { "n", "x", "s", "i" } },
+              ["<M-'>"] = { "explorer_focus", mode = { "n", "x", "s", "i" } },
+              ["<M-C-S-End>"] = { "explorer_up", mode = { "n", "x", "s", "i" } },
+              ["<M-C-Y>"] = { "explorer_open", mode = { "n", "x", "s", "i" } },
+              ["<M-M>"] = { "explorer_paste", mode = { "n", "x", "s", "i" } },
+              ["<M-N>"] = { "explorer_rename", mode = { "n", "x", "s", "i" } },
+              ["<M-S-CR>"] = { "explorer_del", mode = { "n", "x", "s", "i" } },
+              ["<M-m>"] = { "explorer_move", mode = { "n", "x", "s", "i" } },
+              ["<M-n>"] = { "explorer_add", mode = { "n", "x", "s", "i" } },
+
               ["<C-S-B>"] = { "yank_file_uri", mode = { "n", "x", "s", "i" } },
-              ["k"] = { "n", mode = { "n", "x" }, expr = true, desc = "delete word" },
-              ["K"] = { "N", mode = { "n", "x" }, expr = true, desc = "delete word" },
+              ["n"] = { "n", mode = { "n", "x" }, expr = true, desc = "delete word" },
+              ["N"] = { "N", mode = { "n", "x" }, expr = true, desc = "delete word" },
               ["/"] = { "/", mode = { "n", "x" }, expr = true, desc = "delete word" },
               ["?"] = { "?", mode = { "n", "x" }, expr = true, desc = "delete word" },
-              ["<C-a>"] = {
-                function()
-                  require("dial.map").manipulate("increment", "normal")
-                end,
-                mode = { "n" },
-                desc = "Increment",
-              },
-              ["<C-x>"] = {
-                function()
-                  require("dial.map").manipulate("decrement", "normal")
-                end,
-                mode = { "n" },
-                desc = "Decrement",
-              },
+              ["<C-a>"] = { function() require("dial.map").manipulate("increment", "normal") end, mode = { "n" }, desc = "Increment", },
+              ["<C-x>"] = { function() require("dial.map").manipulate("decrement", "normal") end, mode = { "n" }, desc = "Decrement", },
               ["<C-L>"] = { "focus_list", mode = { "n", "x", "s", "i" } },
               ["<PageUp>"] = { "list_scroll_up", mode = { "n", "x", "s", "i" } },
               ["<PageDown>"] = { "list_scroll_down", mode = { "n", "x", "s", "i" } },
@@ -457,7 +455,6 @@ return {
               ["l"] = "list_up",
               ["<C-J>"] = { "select_all", mode = { "n", "x", "s", "i" } },
               ["<C-K>"] = { "bufdelete", mode = { "n", "x", "s", "i" } },
-              ["<C-x>"] = { "<C-X>", "<Insert>", expr = true, mode = { "i" } },
             },
           },
           list = {
@@ -465,11 +462,20 @@ return {
               ["<C-c>"] = { "cancel", mode = { "n", "x", "s", "i" } },
               ["<M-s>"] = { "yank_preview", mode = { "n", "x", "s", "i" } },
               ["<M-d>"] = { "yank_list", mode = { "n", "x", "s", "i" } },
+
               ["<C-D>"] = { "explorer_yank", mode = { "n", "x", "s", "i" } },
-              ["<M-g>"] = { "explorer_del", mode = { "n", "x", "s", "i" } },
+              ["<M-'>"] = { "explorer_focus", mode = { "n", "x", "s", "i" } },
+              ["<M-C-S-End>"] = { "explorer_up", mode = { "n", "x", "s", "i" } },
+              ["<M-C-Y>"] = { "explorer_open", mode = { "n", "x", "s", "i" } },
+              ["<M-M>"] = { "explorer_paste", mode = { "n", "x", "s", "i" } },
+              ["<M-N>"] = { "explorer_rename", mode = { "n", "x", "s", "i" } },
+              ["<M-S-CR>"] = { "explorer_del", mode = { "n", "x", "s", "i" } },
+              ["<M-m>"] = { "explorer_move", mode = { "n", "x", "s", "i" } },
+              ["<M-n>"] = { "explorer_add", mode = { "n", "x", "s", "i" } },
+
               ["<C-S-B>"] = { "yank_file_uri", mode = { "n", "x", "s", "i" } },
-              ["k"] = { "n", mode = { "n", "x" }, expr = true, desc = "delete word" },
-              ["K"] = { "N", mode = { "n", "x" }, expr = true, desc = "delete word" },
+              ["n"] = { "n", mode = { "n", "x" }, expr = true, desc = "delete word" },
+              ["N"] = { "N", mode = { "n", "x" }, expr = true, desc = "delete word" },
               ["/"] = { "/", mode = { "n", "x" }, expr = true, desc = "delete word" },
               ["?"] = { "?", mode = { "n", "x" }, expr = true, desc = "delete word" },
               ["<C-c>"] = "close",
@@ -508,50 +514,48 @@ return {
       { "<BS><Home>", LazyVim.pick("grep_word"), desc = "Word/Selection (root dir)", mode = { "n", "x" } },
       { "<BS><End>", LazyVim.pick("grep_word", { root = false }), desc = "Word/Selection (cwd)", mode = { "n", "x" } },
       { "<BS><PageUp>", LazyVim.pick("live_grep", { root = false }), desc = "Grep (cwd)", mode = { "n", "x" } },
-      { "<leader>ls", LazyVim.pick("files", { cwd = vim.fn.expand("~/dotfiles/") }), desc = "Find Files dotfiles", mode = { "n", "x" } },
-      { "<leader>lS", LazyVim.pick("grep", { cwd = vim.fn.expand("~/dotfiles/") }), desc = "Grep dotfiles", mode = { "n", "x" } },
-      { "<leader>lq", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/prisma/apps/docs/content/docs/") }), desc = "Find Files prisma", mode = { "n", "x" } },
-      { "<leader>lQ", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/prisma/apps/docs/content/docs/") }), desc = "Grep prisma", mode = { "n", "x" } },
-      { "<leader>lb", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/better-auth/docs/content/docs") }), desc = "Find Files better-auth", mode = { "n", "x" } },
-      { "<leader>lB", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/better-auth/docs/content/docs") }), desc = "Grep better-auth", mode = { "n", "x" } },
-      { "<leader>lx", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/next.js/docs/01-app") }), desc = "Find Files next.js", mode = { "n", "x" } },
-      { "<leader>lX", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/next.js/docs/01-app") }), desc = "Grep next.js", mode = { "n", "x" } },
-      { "<leader>ld", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/node/doc/api") }), desc = "Find Files node", mode = { "n", "x" } },
-      { "<leader>lD", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/node/doc/api") }), desc = "Grep node", mode = { "n", "x" } },
-      { "<leader>la", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/mdn/files/en-us/web/api") }), desc = "Find Files mdn api", mode = { "n", "x" } },
-      { "<leader>lA", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/mdn/files/en-us/web/api") }), desc = "Grep mdn api", mode = { "n", "x" } },
-      { "<leader>lh", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/mdn/files/en-us/web/http") }), desc = "Find Files mdn http", mode = { "n", "x" } },
-      { "<leader>lH", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/mdn/files/en-us/web/http") }), desc = "Grep mdn http", mode = { "n", "x" } },
-      { "<leader>lj", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/mdn/files/en-us/web/javascript") }), desc = "Find Files mdn javascript", mode = { "n", "x" } },
-      { "<leader>lJ", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/mdn/files/en-us/web/javascript") }), desc = "Grep mdn javascript", mode = { "n", "x" } },
-      { "<leader>lr", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/react/src/content/reference/") }), desc = "Find Files react", mode = { "n", "x" } },
-      { "<leader>lR", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/react/src/content/reference/") }), desc = "Grep react", mode = { "n", "x" } },
-      { "<leader>l<CR>", LazyVim.pick("files", { cwd = vim.fn.expand("~/.local/share/nvim/lazy/") }), desc = "Find Files react", mode = { "n", "x" } },
-      { "<leader>l<S-CR>", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.local/share/nvim/lazy/") }), desc = "Grep react", mode = { "n", "x" } },
+      { "<leader>ks", LazyVim.pick("files", { cwd = vim.fn.expand("~/dotfiles/") }), desc = "Find Files dotfiles", mode = { "n", "x" } },
+      { "<leader>kS", LazyVim.pick("grep", { cwd = vim.fn.expand("~/dotfiles/") }), desc = "Grep dotfiles", mode = { "n", "x" } },
+      { "<leader>kq", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/prisma/apps/docs/content/docs/") }), desc = "Find Files prisma", mode = { "n", "x" } },
+      { "<leader>kQ", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/prisma/apps/docs/content/docs/") }), desc = "Grep prisma", mode = { "n", "x" } },
+      { "<leader>kb", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/better-auth/docs/content/docs") }), desc = "Find Files better-auth", mode = { "n", "x" } },
+      { "<leader>kB", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/better-auth/docs/content/docs") }), desc = "Grep better-auth", mode = { "n", "x" } },
+      { "<leader>kx", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/next.js/docs/01-app") }), desc = "Find Files next.js", mode = { "n", "x" } },
+      { "<leader>kX", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/next.js/docs/01-app") }), desc = "Grep next.js", mode = { "n", "x" } },
+      { "<leader>kd", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/node/doc/api") }), desc = "Find Files node", mode = { "n", "x" } },
+      { "<leader>kD", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/node/doc/api") }), desc = "Grep node", mode = { "n", "x" } },
+      { "<leader>ka", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/mdn/files/en-us/web/api") }), desc = "Find Files mdn api", mode = { "n", "x" } },
+      { "<leader>kA", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/mdn/files/en-us/web/api") }), desc = "Grep mdn api", mode = { "n", "x" } },
+      { "<leader>kh", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/mdn/files/en-us/web/http") }), desc = "Find Files mdn http", mode = { "n", "x" } },
+      { "<leader>kH", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/mdn/files/en-us/web/http") }), desc = "Grep mdn http", mode = { "n", "x" } },
+      { "<leader>kj", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/mdn/files/en-us/web/javascript") }), desc = "Find Files mdn javascript", mode = { "n", "x" } },
+      { "<leader>kJ", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/mdn/files/en-us/web/javascript") }), desc = "Grep mdn javascript", mode = { "n", "x" } },
+      { "<leader>kr", LazyVim.pick("files", { cwd = vim.fn.expand("~/.src/react/src/content/reference/") }), desc = "Find Files react", mode = { "n", "x" } },
+      { "<leader>kR", LazyVim.pick("grep", { cwd = vim.fn.expand("~/.src/react/src/content/reference/") }), desc = "Grep react", mode = { "n", "x" } },
 
       { "<BS><Down>", LazyVim.pick("buffers"), desc = "Find Files Buffers", mode = { "n", "x" } },
       { "<BS><Left>", LazyVim.pick("grep_buffers"), desc = "Grep Buffers", mode = { "n", "x" } },
       { "<C-F>", function() LazyVim.pick("grep", { dirs = { vim.api.nvim_buf_get_name(0) } })() end, desc = "Grep Current File", mode = { "n", "x" }, },
       { "<leader>av",       function() Snacks.picker.lines()     end, desc = "Buffer Lines"          },
-      { "<leader>k",   function() Snacks.picker.resume()    end, desc = "Resume Last Picker"    },
+      { "<leader>n",   function() Snacks.picker.resume()    end, desc = "Resume Last Picker"    },
       { "<BS>?", LazyVim.pick("jumps"), desc = "Jump List", mode = { "n", "x" } },
       { "<BS>0", LazyVim.pick("undo"), desc = "Undo Tree", mode = { "n", "x" } },
       { "<leader><CR>", LazyVim.pick("help"), desc = "Help Pages", mode = { "n", "x" } },
-      { "<leader>eq", LazyVim.pick("qflist"), desc = "Quickfix List", mode = { "n", "x" } },
-      { "<leader>em", LazyVim.pick("marks"), desc = "Marks", mode = { "n", "x" } },
-      { "<leader>ep", LazyVim.pick("lazy"), desc = "Plugin Specs", mode = { "n", "x" } },
-      { "<leader>en", LazyVim.pick("notifications"), desc = "Notifications", mode = { "n", "x" } },
-      { "<leader>ee", LazyVim.pick("registers"), desc = "Registers", mode = { "n", "x" } },
-      { "<leader>ea", LazyVim.pick("autocmds"), desc = "Autocmds", mode = { "n", "x" } },
-      { "<leader>eh", LazyVim.pick("command_history"), desc = "Command History", mode = { "n", "x" } },
-      { "<leader>el", LazyVim.pick("search_history"), desc = "Search History", mode = { "n", "x" } },
-      { "<leader>es", LazyVim.pick("keymaps"), desc = "Keymaps", mode = { "n", "x" } },
-      { "<leader>eu", LazyVim.pick("highlights"), desc = "Highlights", mode = { "n", "x" } },
-      { "<leader>eg",  function() Snacks.picker()                 end, desc = "All Pickers"     },
+      { "<leader>hq", LazyVim.pick("qflist"), desc = "Quickfix List", mode = { "n", "x" } },
+      { "<leader>hm", LazyVim.pick("marks"), desc = "Marks", mode = { "n", "x" } },
+      { "<leader>hp", LazyVim.pick("lazy"), desc = "Plugin Specs", mode = { "n", "x" } },
+      { "<leader>hl", LazyVim.pick("notifications"), desc = "Notifications", mode = { "n", "x" } },
+      { "<leader>he", LazyVim.pick("registers"), desc = "Registers", mode = { "n", "x" } },
+      { "<leader>ha", LazyVim.pick("autocmds"), desc = "Autocmds", mode = { "n", "x" } },
+      { "<leader>hh", LazyVim.pick("command_history"), desc = "Command History", mode = { "n", "x" } },
+      { "<leader>hj", LazyVim.pick("search_history"), desc = "Search History", mode = { "n", "x" } },
+      { "<leader>hs", LazyVim.pick("keymaps"), desc = "Keymaps", mode = { "n", "x" } },
+      { "<leader>hu", LazyVim.pick("highlights"), desc = "Highlights", mode = { "n", "x" } },
+      { "<leader>hg",  function() Snacks.picker()                 end, desc = "All Pickers"     },
       { "<BS>7", LazyVim.pick("man"), desc = "Man Pages", mode = { "n", "x" } },
       { "<BS>6", LazyVim.pick("icons"), desc = "Icons", mode = { "n", "x" } },
-      { "<leader>ed", function() LazyVim.pick("files", { cwd = get_basedir() })() end, desc = "Find Files nth current dir", mode = { "n", "x" } },
-      { "<leader>ef", function() LazyVim.pick("grep", { cwd = get_basedir() })() end, desc = "Grep nth current dir", mode = { "n", "x" } },
+      { "<leader>hd", function() LazyVim.pick("files", { cwd = get_basedir() })() end, desc = "Find Files nth current dir", mode = { "n", "x" } },
+      { "<leader>hf", function() LazyVim.pick("grep", { cwd = get_basedir() })() end, desc = "Grep nth current dir", mode = { "n", "x" } },
       { "<BS><Right>", LazyVim.pick("harpoon"), desc = "Harpoon Picker", mode = { "n", "x" } },
       { "<BS>(", function() Snacks.scratch() end, desc = "Toggle Scratch Buffer" },
       { "<BS>)", function() Snacks.scratch.select() end, desc = "Select Scratch Buffer" },
@@ -559,17 +563,13 @@ return {
       { "<BS>+", LazyVim.pick("diagnostics_buffer"), desc = "Buffer Diagnostics", mode = { "n", "x" } },
       { "<BS>.", LazyVim.pick(function(opts) require("aerial").snacks_picker(opts) end), desc = "aerial picker", mode = { "n", "x" } },
 
-      { "<leader>hl", function() Snacks.picker.git_log({ cwd = LazyVim.root.git() }) end, desc = "Git Log" },
-      { "<leader>hL", function() Snacks.picker.git_log_line({ cwd = LazyVim.root.git() }) end, desc = "Git Log Line" },
-      { "<leader>hs", function() Snacks.picker.git_status({ cwd = LazyVim.root.git() }) end, desc = "Git Status" },
-      { "<leader>hS", function() Snacks.picker.git_stash({ cwd = LazyVim.root.git() }) end, desc = "Git Stash" },
-      { "<leader>hd", function() Snacks.picker.git_diff({ cwd = LazyVim.root.git() }) end, desc = "Git Diff (Hunks)" },
-      { "<leader>hD", function() Snacks.picker.git_diff({ cwd = LazyVim.root.git(), base = "origin" }) end, desc = "Git Diff (Origin)" },
-      { "<leader>hf", function() Snacks.picker.git_log_file({ cwd = LazyVim.root.git() }) end, desc = "Git Log File" },
-
-      { "<leader>hg", function() Snacks.lazygit({ cwd = LazyVim.root.git() }) end,           desc = "Lazygit" },
-      { "<leader>hG", function() Snacks.lazygit.log_file({ cwd = LazyVim.root.git() }) end,  desc = "Lazygit file log" },
-      { "<leader>hY", function() Snacks.lazygit.log({ cwd = LazyVim.root.git() }) end,       desc = "Lazygit log" },
+      { "<leader>jl", function() Snacks.picker.git_log({ cwd = LazyVim.root.git() }) end, desc = "git Log" },
+      { "<leader>jL", function() Snacks.picker.git_log_line({ cwd = LazyVim.root.git() }) end, desc = "git Log Line" },
+      { "<leader>js", function() Snacks.picker.git_status({ cwd = LazyVim.root.git() }) end, desc = "git Status" },
+      { "<leader>jS", function() Snacks.picker.git_stash({ cwd = LazyVim.root.git() }) end, desc = "git Stash" },
+      { "<leader>jd", function() Snacks.picker.git_diff({ cwd = LazyVim.root.git() }) end, desc = "git Diff (Hunks)" },
+      { "<leader>jD", function() Snacks.picker.git_diff({ cwd = LazyVim.root.git(), base = "origin" }) end, desc = "git Diff (Origin)" },
+      { "<leader>jf", function() Snacks.picker.git_log_file({ cwd = LazyVim.root.git() }) end, desc = "git Log File" },
     },
   },
 
@@ -598,8 +598,8 @@ return {
     event = "LazyFile",
     opts = {},
     keys = {
-      { "<leader>e[",     LazyVim.pick("todo_comments"),                desc = "root"},
-      { "<leader>e]",   LazyVim.pick.wrap("todo_comments", { root = false }),              desc = "cwd" },
+      { "<leader>h[",     LazyVim.pick("todo_comments"),                desc = "root"},
+      { "<leader>h]",   LazyVim.pick.wrap("todo_comments", { root = false }),              desc = "cwd" },
       { "<Up>*", function() require("todo-comments").jump_next() end, desc = "Next Todo Comment" },
       { "<Left>*", function() require("todo-comments").jump_prev() end, desc = "Prev Todo Comment" },
     },

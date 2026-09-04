@@ -19,36 +19,23 @@ prepend_keymap = [
 	{ on = [ "g", "s" ],       run = "cd ~/dotfiles",   desc = "Go to ~/dotfiles" },
 
 	# Hop around
-	{ on = "l",      run = "arrow prev", desc = "Previous file" },
-	{ on = "h",      run = "arrow next", desc = "Next file" },
 	{ on = "<C-Up>",   run = "arrow prev", desc = "Previous file" },
 	{ on = "<C-Down>", run = "arrow next", desc = "Next file" },
 
 	{ on = "<PageUp>",     run = "arrow -50%", desc = "Move cursor up one page" },
 	{ on = "<PageDown>",   run = "arrow 50%",  desc = "Move cursor down one page" },
-
-	# Navigation
-	{ on = "e", run = "leave", desc = "Back to the parent directory" },
-	{ on = "n", run = "enter", desc = "Enter the child directory" },
-
+	{ on = "[", run = "tab_switch -9 --relative", desc = "Switch to previous tab" },
 	# Toggle
 	{ on = "<Tab>", run = [ "toggle", "arrow 1" ], desc = "Toggle the current selection state" },
 	{ on = "<S-Tab>", run = [ "toggle", "arrow -1" ], desc = "Toggle the current selection state" },
 
 	# Spotting
 	{ on = "<Space>", run = "spot", desc = "Spot hovered file" },
-
-	# Find
-	{ on = "k", run = "find_arrow",              desc = "Next found" },
-	{ on = "K", run = "find_arrow --previous",   desc = "Previous found" },
 ]
 
 [tasks]
 
 prepend_keymap = [
-	{ on = "l", run = "arrow prev", desc = "Previous task" },
-	{ on = "h", run = "arrow next", desc = "Next task" },
-
 	{ on = "<C-Up>",   run = "arrow prev", desc = "Previous task" },
 	{ on = "<C-Down>", run = "arrow next", desc = "Next task" },
 ]
@@ -56,11 +43,6 @@ prepend_keymap = [
 [spot]
 
 prepend_keymap = [
-	{ on = "l", run = "arrow prev", desc = "Previous line" },
-	{ on = "h", run = "arrow next", desc = "Next line" },
-	{ on = "e", run = "swipe prev", desc = "Swipe to previous file" },
-	{ on = "n", run = "swipe next", desc = "Swipe to next file" },
-
 	{ on = "<C-Up>",    run = "arrow prev", desc = "Previous line" },
 	{ on = "<C-Down>",  run = "arrow next", desc = "Next line" },
 ]
@@ -68,9 +50,6 @@ prepend_keymap = [
 [pick]
 
 prepend_keymap = [
-	{ on = "l", run = "arrow prev", desc = "Previous option" },
-	{ on = "h", run = "arrow next", desc = "Next option" },
-
 	{ on = "<C-Up>",   run = "arrow prev", desc = "Previous option" },
 	{ on = "<C-Down>", run = "arrow next", desc = "Next option" },
 ]
@@ -78,12 +57,6 @@ prepend_keymap = [
 [input]
 
 prepend_keymap = [
-	# Character-wise movement
-	{ on = "e",       run = "move -1", desc = "Move back a character" },
-	{ on = "n",       run = "move 1",  desc = "Move forward a character" },
-	{ on = "m",         run = "forward --end-of-word",      desc = "Move forward to the end of the current or next word" },
-	{ on = "M",         run = "forward wide --end-of-word", desc = "Move forward to the end of the current or next WORD" },
-
 	# Kill
 	{ on = "<S-Home>",         run = "kill bol",      desc = "Kill backwards to the BOL" },
 	{ on = "<S-End>",         run = "kill eol",      desc = "Kill forwards to the EOL" },
@@ -92,8 +65,6 @@ prepend_keymap = [
 	{ on = "<C-S-z>", run = "redo",                     desc = "redo" },
 
 	# History
-	{ on = "l",      run = "recall -1", desc = "Recall previous input" },
-	{ on = "h",      run = "recall 1",  desc = "Recall next input" },
 	{ on = "<C-Up>",   run = "recall -1", desc = "Recall previous input" },
 	{ on = "<C-Down>", run = "recall 1",  desc = "Recall next input" },
 ]
@@ -101,9 +72,6 @@ prepend_keymap = [
 [confirm]
 
 prepend_keymap = [
-	{ on = "l", run = "arrow prev", desc = "Previous line" },
-	{ on = "h", run = "arrow next", desc = "Next line" },
-
 	{ on = "<C-Up>",   run = "arrow prev", desc = "Previous line" },
 	{ on = "<C-Down>", run = "arrow next", desc = "Next line" },
 ]
@@ -119,9 +87,6 @@ prepend_keymap = [
 
 prepend_keymap = [
 	# Navigation
-	{ on = "l", run = "arrow prev", desc = "Previous line" },
-	{ on = "h", run = "arrow next", desc = "Next line" },
-
 	{ on = "<C-Up>",   run = "arrow prev", desc = "Previous line" },
 	{ on = "<C-Down>", run = "arrow next", desc = "Next line" },
 ]

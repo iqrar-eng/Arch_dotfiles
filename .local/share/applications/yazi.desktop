@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=Yazi
-Exec=env YAZI_CONFIG_HOME=/home/iqrar/dotfiles/.config/yazi kitty --config /home/iqrar/dotfiles/.config/kitty/default.conf --class kitty-yazi -e yazi %f
+Exec=/home/iqrar/dotfiles/.config/yazi/bin/open
 Terminal=false
 MimeType=inode/directory;
 Categories=System;FileTools;FileManager;

@@ -42,65 +42,13 @@ blehook complete_load+=my/complete-load-hook
 ble/is-function ble/complete/menu#select && my/complete-load-hook
 
 function blerc/vim-mode-hook {
-  for k in vi_nmap vi_omap vi_xmap; do
-    ble-bind -m "$k" -f e 'vi-command/backward-char wrap'
-    ble-bind -m "$k" -f h 'vi-command/graphical-forward-line'
-    ble-bind -m "$k" -f l 'vi-command/graphical-backward-line'
-    ble-bind -m "$k" -f n 'vi-command/forward-char wrap'
-
-    ble-bind -m "$k" -f m vi-command/forward-vword-end
-    ble-bind -m "$k" -f M vi-command/forward-uword-end
-    ble-bind -m "$k" -f 'g m' vi-command/backward-vword-end
-    ble-bind -m "$k" -f 'g M' vi-command/backward-uword-end
-
-    ble-bind -m "$k" -f "^" vi-command/graphical-first-non-space
-
-    ble-bind -m "$k" -f j vi-command/search-repeat
-    ble-bind -m "$k" -f J vi-command/search-reverse-repeat
-  done
-
-  ble-bind -m 'vi_nmap' -f 'home' vi-command/beginning-of-graphical-line
-  ble-bind -m 'vi_omap' -f 'home' vi-command/beginning-of-graphical-line
-  ble-bind -m 'vi_xmap' -f 'home' vi-command/beginning-of-graphical-line
-  ble-bind -m 'vi_imap' -f 'home' vi-command/beginning-of-graphical-line
-  ble-bind -m 'vi_cmap' -f 'home' vi-command/beginning-of-graphical-line
-
-  ble-bind -m 'vi_nmap' -f 'end' vi-command/graphical-forward-eol
-  ble-bind -m 'vi_omap' -f 'end' vi-command/graphical-forward-eol
-  ble-bind -m 'vi_xmap' -f 'end' vi-command/graphical-forward-eol
-  ble-bind -m 'vi_imap' -f 'end' vi-command/graphical-forward-eol
-  ble-bind -m 'vi_cmap' -f 'end' vi-command/graphical-forward-eol
-
-  ble-bind -m 'vi_imap' -f 'up' vi-command/graphical-backward-line
-  ble-bind -m 'vi_cmap' -f 'up' vi-command/graphical-backward-line
-
-  ble-bind -m 'vi_imap' -f 'down' vi-command/graphical-forward-line
-  ble-bind -m 'vi_cmap' -f 'down' vi-command/graphical-forward-line
-
   ble-bind -m 'vi_nmap' -f C-m accept-line
   ble-bind -m 'vi_omap' -f C-m accept-line
   ble-bind -m 'vi_xmap' -f C-m accept-line
   ble-bind -m 'vi_imap' -f C-m accept-line
   ble-bind -m 'vi_smap' -f C-m accept-line
 
-  ble-bind -m vi_nmap -s 'SP d' '"zd'
-  ble-bind -m vi_xmap -s 'SP d' '"zd'
-  ble-bind -m vi_nmap -s 'SP c' '"zc'
-  ble-bind -m vi_xmap -s 'SP c' '"zc'
-  ble-bind -m vi_nmap -s 'SP y' '"zy'
-  ble-bind -m vi_xmap -s 'SP y' '"zy'
-
-  ble-bind -m vi_nmap -s 'SP x' '"zx'
-  ble-bind -m vi_nmap -s 'SP X' '"zX'
-
-  ble-bind -m vi_nmap -s 'SP p' '"zp'
-  ble-bind -m vi_nmap -s 'SP P' '"zP'
-  ble-bind -m vi_xmap -s 'SP p' '"zp'
-
   ble-bind -m 'vi_nmap' -f '#' vi-command/search-word-backward
-
-  ble-bind -m 'vi_nmap' -f 'SP _' vi_nmap/connect-line
-  ble-bind -m 'vi_xmap' -f 'SP _' vi_xmap/connect-line
 
   ble-bind -m vi_nmap -f 'C-c' discard-line
   ble-bind -m vi_xmap -f 'C-c' discard-line
@@ -124,7 +72,7 @@ function blerc/vim-mode-hook {
   ble-bind -m vi_imap -f C-l   'history-search backward:hide-status'
   ble-bind -m auto_complete -f C-l 'history-search backward:hide-status'
 
-ble-bind -m 'auto_complete' -f C-k auto_complete/accept-line
+  ble-bind -m 'auto_complete' -f C-k auto_complete/accept-line
 
   function ble/widget/my/open-line {
     local ARG FLAG REG; ble/keymap:vi/get-arg 1
@@ -146,8 +94,8 @@ ble-bind -m 'auto_complete' -f C-k auto_complete/accept-line
 
     ble/keymap:vi/adjust-command-mode
   }
-ble-bind -m vi_nmap -f 'SP o' 'my/open-line below'
-ble-bind -m vi_nmap -f 'SP i' 'my/open-line above'
+ble-bind -m vi_nmap -f '] SP' 'my/open-line below'
+ble-bind -m vi_nmap -f '[ SP' 'my/open-line above'
 
 ble-bind -m vi_nmap -c 'C-o' 'cd -'
 ble-bind -m vi_nmap -c 'C-k' 'cd ..'
@@ -176,7 +124,7 @@ function ble/widget/my/_fzf-cd-from {
 }
 
 function ble/widget/my/fzf-cd-home    { ble/widget/my/_fzf-cd-from "$HOME";           }
-ble-bind -m vi_nmap -f 'SP l' my/fzf-cd-home
+ble-bind -m vi_nmap -f 'SP k' my/fzf-cd-home
 
 ble-bind -m 'vi_nmap' -x C-f fzf-file-widget
 ble-bind -m 'vi_nmap' -x C-r fzf-history-widget
@@ -306,10 +254,10 @@ ble-bind -m vi_imap -f M-C-S-up 'kill-forward-fword'  # E respects /
 ble-bind -m vi_imap -f M-C-S-down 'kill-backward-fword'  # B respects /
 
 # kill-sword = kill-uword
-ble-bind -m vi_imap -f M-, kill-eword # im and space before
-ble-bind -m vi_imap -f C-S-h kill-sword # iW and space before
-ble-bind -m vi_imap -f C-S-s kill-cword # iw and space before
-ble-bind -m vi_imap -f M-C-l kill-fword # sword respects /
+ble-bind -m vi_imap -f C-s kill-cword # iw and space before
+ble-bind -m vi_imap -f C-h kill-sword # iW and space before
+ble-bind -m vi_imap -f M-s kill-fword # sword respects /
+ble-bind -m vi_imap -f M-h kill-eword # im and space before
 
 ble-bind -m vi_imap -f 'C-BS' 'kill-region-or kill-uword'
 ble-bind -m vi_nmap -f 'C-BS' 'kill-region-or kill-uword'
@@ -344,25 +292,6 @@ bind 'set keyseq-timeout 1'
 ble-import -d integration/fzf-completion
 ble-import -d integration/fzf-key-bindings
 
-ble-face syntax_error=fg=203
-ble-face auto_complete=fg=245
-ble-face menu_complete_match=fg=166,bold
-
-ble-face filename_directory=fg=33
-ble-face filename_executable=fg=green
-ble-face filename_link=fg=teal
-ble-face filename_other=none
-ble-face filename_ls_colors=none
-ble-face filename_orphan=fg=16,bg=224
-ble-face filename_block=fg=yellow,bg=black
-ble-face filename_character=fg=231,bg=black
-ble-face filename_directory_sticky=fg=231,bg=26
-ble-face filename_pipe=fg=lime,bg=black
-ble-face filename_setgid=fg=black,bg=191
-ble-face filename_setuid=fg=black,bg=220
-ble-face filename_socket=fg=cyan,bg=black
-ble-face filename_url=fg=blue
-ble-face filename_warning=fg=red
 }
 
 blehook/eval-after-load keymap_vi blerc/vim-mode-hook

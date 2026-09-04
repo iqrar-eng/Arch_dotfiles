@@ -1,17 +1,32 @@
 #!/usr/bin/env bash
 
+# https://github.com/jpalardy/vim-slime/blob/main/autoload/slime/targets/tmux.vim
+
 set -euo pipefail
 
 EXECUTE=0
+CANCEL=1
 JUMP=0
 TARGET_PANE=":"
+TEXT_ARG=""
+USE_TEXT_ARG=0
+args=("$@")
+i=0
 
-for arg in "$@"; do
+while [[ $i -lt ${#args[@]} ]]; do
+  arg="${args[$i]}"
   case "$arg" in
     --execute) EXECUTE=1 ;;
+    --no-cancel) CANCEL=0 ;;
     --jump)    JUMP=1    ;;
+    --text)
+      USE_TEXT_ARG=1
+      i=$((i + 1))
+      TEXT_ARG="${args[$i]:-}"
+      ;;
     *)         TARGET_PANE="$arg" ;;
   esac
+  i=$((i + 1))
 done
 
 if [[ -n "${TMUX:-}" ]]; then
@@ -25,11 +40,17 @@ else
   TMUX_CMD="tmux"
 fi
 
-TEXT="$(wl-paste 2>/dev/null)" || { echo "Error: clipboard empty or unavailable" >&2; exit 1; }
+if [[ "$USE_TEXT_ARG" -eq 1 ]]; then
+  TEXT="$TEXT_ARG"
+else
+  TEXT="$(wl-paste 2>/dev/null)" || { echo "Error: clipboard empty or unavailable" >&2; exit 1; }
+fi
 
 [[ -z "$TEXT" ]] && { echo "Clipboard is empty." >&2; exit 0; }
 
-$TMUX_CMD send-keys -t "$TARGET_PANE" C-c
+if [[ "$CANCEL" -eq 1 ]]; then
+  $TMUX_CMD send-keys -t "$TARGET_PANE" C-c
+fi
 
 printf '%s' "$TEXT" | $TMUX_CMD load-buffer -
 $TMUX_CMD paste-buffer -d -p -t "$TARGET_PANE"

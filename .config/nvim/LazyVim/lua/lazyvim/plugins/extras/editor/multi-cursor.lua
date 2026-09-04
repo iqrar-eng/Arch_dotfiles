@@ -57,7 +57,7 @@ return {
 
         layerSet({ "n","x" }, "gY", mc.enableCursors, { desc = "MC: toggle cursor" })
         layerSet({ "n", "x" }, "<C-C>", mc.duplicateCursors, { desc = "MC: duplicate cursors", buffer = true })
-        layerSet({ "n", "x" }, "<M-C-Q>", function() for _ = 1, vim.v.count1 do mc.deleteCursor() end end, { desc = "MC: delete cursor", buffer = true })
+        layerSet({ "n", "x" }, "<M-C-7>", function() for _ = 1, vim.v.count1 do mc.deleteCursor() end end, { desc = "MC: delete cursor", buffer = true })
         layerSet("n", "<Esc>", function()
           if not mc.cursorsEnabled() then
             mc.enableCursors()

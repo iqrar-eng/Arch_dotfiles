@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # https://github.com/morganamilo/paru#installation
-sudo pacman -S --needed base-devel
+sudo pacman -S --needed --noconfirm base-devel
 git clone https://aur.archlinux.org/paru.git paru
 cd paru
 makepkg -si
@@ -11,51 +11,52 @@ rm -rf paru
 
 paru -S --needed --noconfirm blesh-git
 
-sudo pacman -S --needed --noconfirm firefox fd ripgrep starship zoxide neovim vim \
+sudo pacman -S --needed --noconfirm firefox fd ripgrep starship zoxide neovim vim trash-cli yazi \
   brightnessctl jq make nodejs npm power-profiles-daemon vlc \
   copyq wl-clipboard \
   grim slurp satty \
   noto-fonts noto-fonts-emoji noto-fonts-cjk noto-fonts-extra ttf-jetbrains-mono-nerd \
   git github-cli lazygit
 
-sudo pacman -S --needed yazi
-ya pkg add boydaihungst/gvfs
-ya pkg add yazi-rs/flavors:catppuccin-mocha
-ya pkg add yazi-rs/flavors:catppuccin-latte
+# Set the charge type to Long_Life mode ( 80% threshold )
+# https://linrunner.de/tlp/installation/arch.html
+sudo pacman -S --needed --noconfirm tlp
+sudo systemctl enable --now tlp.service
+sudo sed -i 's/^#*STOP_CHARGE_THRESH_BAT0=.*/STOP_CHARGE_THRESH_BAT0=1/' /etc/tlp.conf
+grep -q '^STOP_CHARGE_THRESH_BAT0=' /etc/tlp.conf || echo 'STOP_CHARGE_THRESH_BAT0=1' | sudo tee -a /etc/tlp.conf
+sudo tlp start
+sudo tlp-stat -b
 
-sudo pacman -S --needed man-db man-pages
+sudo pacman -S --needed --noconfirm man-db man-pages
 sudo man-db
 
 # ========================
 
 git clone https://github.com/iqrar-eng/dotfiles ~/dotfiles
 
-mkdir -p "$HOME/.config/copyq/"
-mkdir -p "$HOME/.config/xdg-desktop-portal"
-mkdir -p "$HOME/.config/xdg-desktop-portal-termfilechooser"
-mkdir -p "$HOME/.local/share/applications"
-
 paths=(
   ".bash_profile"
   ".bashrc"
   ".blerc"
   ".gitconfig"
-  ".tmux.conf"
 
   ".config/copyq/copyq-commands.ini"
   ".config/copyq/copyq.conf"
-
+  ".config/dunst"
+  ".config/hypr"
+  ".config/kitty"
+  ".config/nvim"
+  ".config/rofi"
+  ".config/systemd"
+  ".config/tmux/tmux.conf"
   ".config/mimeapps.list"
   ".config/starship.toml"
-
-  ".config/dunst"
-  ".config/systemd"
 
   # https://github.com/boydaihungst/xdg-desktop-portal-termfilechooser/#configuration
   ".config/xdg-desktop-portal-termfilechooser"
   ".config/xdg-desktop-portal"
 
-  ".local/share/applications/yazi.desktop"
+  ".local/share/applications"
 )
 
 # backup
@@ -64,6 +65,10 @@ paths=(
 for p in "${paths[@]}"; do
   if [ -L "$HOME/$p" ]; then
     echo "skip (already linked): $p"
+    continue
+  fi
+  if [ ! -e "$HOME/$p" ]; then
+    echo "skip (source doesn't exist): $p"
     continue
   fi
   mkdir -p "$HOME/dotfiles/$(dirname "$p")" \
@@ -75,9 +80,12 @@ done
 # ========================
 
 for p in "${paths[@]}"; do
+  mkdir -p "$HOME/$(dirname "$p")" "$HOME/dotfiles/$(dirname "$p")"
   ln -sfn "$HOME/dotfiles/$p" "$HOME/$p"
 done
 
+sudo mkdir -p "$HOME/dotfiles/etc/keyd"
+sudo mkdir -p /etc/keyd
 sudo chmod 777 "$HOME/dotfiles/etc/keyd/default.conf"
 sudo ln -sfn "$HOME/dotfiles/etc/keyd/default.conf" "/etc/keyd/default.conf"
 
