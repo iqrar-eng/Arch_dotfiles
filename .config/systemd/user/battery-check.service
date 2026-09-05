@@ -3,4 +3,4 @@ Description=Battery level check
 
 [Service]
 Type=oneshot
-ExecStart=%h/dotfiles/.config/systemd/user/bin/battery-check
+ExecStart=%h/archlinux/.config/systemd/user/bin/battery-check

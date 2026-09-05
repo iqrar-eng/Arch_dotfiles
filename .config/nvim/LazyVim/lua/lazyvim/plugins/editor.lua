@@ -53,7 +53,7 @@ return {
     event = "VeryLazy",
     vscode = true,
     opts = {
-      label = { rainbow = { enabled = true, shade = 6 } },
+      label = { before=true, after=false, rainbow = { enabled = true, shade = 6 } },
       highlight = { backdrop = false },
       modes = {
         search = { enabled = true, highlight = { backdrop = false } },

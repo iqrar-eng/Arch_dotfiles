@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 
 sub="$1"
-
 mtp="$(find "$XDG_RUNTIME_DIR/gvfs" -maxdepth 1 -type d -name 'mtp:*' -print -quit)"
+
 if [ -z "$mtp" ]; then
   ya emit notify --content="No MTP device mounted" --level="error"
   exit 1

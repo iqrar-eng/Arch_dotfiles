@@ -1,7 +1,5 @@
 #!/bin/bash
 
-export YAZI_CONFIG_HOME=~/dotfiles/.config/yazi
-
 MY_ID=123456
 PATHS=("${@:-$HOME}")
 YAZI_CMD=(kitty --class kitty-yazi -e yazi)

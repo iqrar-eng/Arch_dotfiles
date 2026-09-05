@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
 
 pkill -f firefox
-tmux info &>/dev/null && "$HOME/.config/tmux/plugins/tmux-resurrect/scripts/save.sh"
+tmux info &>/dev/null && "$HOME/.tmux/plugins/tmux-resurrect/scripts/save.sh"
 loginctl terminate-user $USER

@@ -1,7 +1,7 @@
 [Desktop Entry]
 Type=Application
 Name=Yazi
-Exec=/home/iqrar/dotfiles/.config/yazi/bin/open
+Exec=/home/iqrar/archlinux/.config/yazi/bin/open
 Terminal=false
 MimeType=inode/directory;
 Categories=System;FileTools;FileManager;

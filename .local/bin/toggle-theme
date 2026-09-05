@@ -6,7 +6,7 @@ import subprocess
 from pathlib import Path
 
 home = Path.home()
-kitty_dir = home / "dotfiles/.config/kitty"
+kitty_dir = home / ".config/kitty"
 current = kitty_dir / "current-theme.conf"
 
 resolved = os.path.realpath(current)
@@ -43,7 +43,7 @@ subprocess.run([
 ])
 
 # CopyQ
-copyq_theme = home / "dotfiles/.config/copyq/themes" / ("light.ini" if is_dark else "dark.ini")
+copyq_theme = home / "archlinux/.config/copyq/themes" / ("light.ini" if is_dark else "dark.ini")
 subprocess.run(["copyq", "eval", f"loadTheme('{copyq_theme}')"])
 
 # Neovim

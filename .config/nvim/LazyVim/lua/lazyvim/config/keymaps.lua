@@ -181,7 +181,7 @@ vim.keymap.set("n", "N", "'nN'[v:searchforward].'zv'", { expr = true, desc = "Pr
 vim.keymap.set({ "x", "o" }, "n", "'Nn'[v:searchforward]", { expr = true, desc = "Next Search Result" })
 vim.keymap.set({ "x", "o" }, "N", "'nN'[v:searchforward]", { expr = true, desc = "Prev Search Result" })
 
-vim.keymap.set({ "n", "i" }, "<M-C-7>", "<C-^>")
+vim.keymap.set({ "n", "i" }, "<M-C-_>", "<C-^>")
 vim.keymap.set("n", "<PageDown>", "<C-d>zz")
 vim.keymap.set("n", "<PageUp>", "<C-u>zz")
 
@@ -225,7 +225,7 @@ local function yank_selection_text()
   return text
 end
 
-local cmd = "hyprctl dispatch 'hl.dsp.focus({ workspace = \"1\" })' && ~/dotfiles/.config/hypr/bin/paste"
+local cmd = "hyprctl dispatch 'hl.dsp.focus({ workspace = \"1\" })' && ~/archlinux/.config/hypr/bin/paste"
 
 local function bind_send(lhs, cmd, register)
   local global_name = "SlimeBrowserSendOp_" .. lhs:gsub("[^%w]", "_")
@@ -263,10 +263,10 @@ local function bind_send_text(lhs, base_cmd)
   end, { desc = "Send selection text via --text" })
 end
 
-bind_send_text("<leader>r", "~/dotfiles/.local/bin/clipboard-slime-core --jump")
-bind_send_text("<leader>w", "~/dotfiles/.local/bin/clipboard-slime-core --execute")
-bind_send_text("<leader>q", "~/dotfiles/.local/bin/clipboard-slime-core --jump --execute")
-bind_send_text("<leader>m", "~/dotfiles/.local/bin/clipboard-slime-core --jump --no-cancel")
+bind_send_text("<leader>r", "~/archlinux/.local/bin/clipboard-slime-core --jump")
+bind_send_text("<leader>w", "~/archlinux/.local/bin/clipboard-slime-core --execute")
+bind_send_text("<leader>q", "~/archlinux/.local/bin/clipboard-slime-core --jump --execute")
+bind_send_text("<leader>m", "~/archlinux/.local/bin/clipboard-slime-core --jump --no-cancel")
 
 -- ========================
 

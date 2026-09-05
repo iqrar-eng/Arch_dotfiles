@@ -1,11 +1,11 @@
 ---------------------
 ---- MY PROGRAMS ----
 ---------------------
+
 local firefox = "firefox"
-local nvim = "kitty --class kitty-nvim nvim"
-local terminal = "kitty --config ~/dotfiles/.config/kitty/terminal.conf --class kitty-terminal "
+local nvim = "kitty ~/archlinux/.config/tmux/bin/open"
 local clipboard = "copyq --start-server show"
-local fileManager = "~/dotfiles/.config/yazi/bin/open"
+local fileManager = "~/archlinux/.config/yazi/bin/open"
 
 ------------------------
 ---- RULES ---
@@ -13,7 +13,6 @@ local fileManager = "~/dotfiles/.config/yazi/bin/open"
 
 hl.workspace_rule({ workspace = "1", on_created_empty = firefox })
 hl.workspace_rule({ workspace = "2", on_created_empty = nvim })
-hl.workspace_rule({ workspace = "3", on_created_empty = terminal })
 hl.workspace_rule({ workspace = "4", on_created_empty = clipboard })
 hl.workspace_rule({ workspace = "5", on_created_empty = fileManager })
 
@@ -24,8 +23,6 @@ hl.window_rule({ name = "no-border-single-floating", match = { float = true, wor
 -- Always route these apps to their workspace, no matter where they're launched from
 hl.window_rule({ name = "firefox-to-ws1", match = { class = "firefox" }, workspace = "1" })
 hl.window_rule({ name = "nvim-to-ws2", match = { class = "kitty-nvim" }, workspace = "2" })
-hl.window_rule({ name = "terminal-to-ws3", match = { class = "kitty-terminal" }, workspace = "3" })
-hl.window_rule({ name = "copyq-to-ws4", match = { class = "com.github.hluk.copyq" }, workspace = "4" })
 hl.window_rule({ name = "yazi-to-ws5", match = { class = "kitty-yazi" }, workspace = "5" })
 
 -------------------
@@ -37,7 +34,6 @@ hl.on("hyprland.start", function()
 	hl.exec_cmd("trash-empty -f 30")
 	hl.exec_cmd("[workspace 1 silent] " .. firefox)
 	hl.exec_cmd("[workspace 2 silent] " .. nvim)
-	hl.exec_cmd("[workspace 3 silent] " .. terminal)
 	hl.exec_cmd("[workspace 4 silent] " .. clipboard)
 end)
 
@@ -85,10 +81,6 @@ hl.config({
 		disable_hyprland_logo = true,
 	},
 
-	debug = {
-		suppress_errors = true,
-	},
-
 	input = {
 		sensitivity = 0.7,
 		touchpad = {
@@ -103,105 +95,4 @@ hl.gesture({
 	action = "workspace",
 })
 
----------------------
----- KEYBINDINGS ----
----------------------
-
-hl.bind("SUPER + CTRL + ALT + T", hl.dsp.focus({ workspace = "previous" }))
-
--- Switch workspaces with SUPER + [0-9]
--- Move active window to a workspace with SUPER + SHIFT + [0-9]
-for i = 1, 10 do
-	local key = i % 10 -- 10 maps to key 0
-	hl.bind("SUPER + " .. key, hl.dsp.focus({ workspace = i }))
-	hl.bind("SUPER + SHIFT + " .. key, hl.dsp.window.move({ workspace = i }))
-end
-
--- Example binds, see https://wiki.hypr.land/Configuring/Basics/Binds/ for more
-hl.bind("SUPER + C", hl.dsp.window.close())
-hl.bind("SUPER + A", hl.dsp.window.float({ action = "toggle" }))
-hl.bind("SUPER + S", hl.dsp.layout("togglesplit")) -- dwindle only
-
--- Move focus with SUPER + arrow keys
-hl.bind("SUPER + left", hl.dsp.focus({ direction = "left" }))
-hl.bind("SUPER + right", hl.dsp.focus({ direction = "right" }))
-hl.bind("SUPER + up", hl.dsp.focus({ direction = "up" }))
-hl.bind("SUPER + down", hl.dsp.focus({ direction = "down" }))
-
--- Move/resize windows with SUPER + LMB/RMB and dragging
-hl.bind("SUPER + mouse:272", hl.dsp.window.drag(), { mouse = true })
-hl.bind("SUPER + mouse:273", hl.dsp.window.resize(), { mouse = true })
-hl.bind("SHIFT + CTRL + ALT + SUPER + E", hl.dsp.window.fullscreen())
-
--- Laptop multimedia keys for volume and LCD brightness
-hl.bind(
-	"XF86AudioRaiseVolume",
-	hl.dsp.exec_cmd("wpctl set-volume -l 1 @DEFAULT_AUDIO_SINK@ 5%+"),
-	{ locked = true, repeating = true }
-)
-hl.bind(
-	"XF86AudioLowerVolume",
-	hl.dsp.exec_cmd("wpctl set-volume @DEFAULT_AUDIO_SINK@ 5%-"),
-	{ locked = true, repeating = true }
-)
-hl.bind(
-	"XF86AudioMute",
-	hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SINK@ toggle"),
-	{ locked = true, repeating = true }
-)
-hl.bind(
-	"XF86AudioMicMute",
-	hl.dsp.exec_cmd("wpctl set-mute @DEFAULT_AUDIO_SOURCE@ toggle"),
-	{ locked = true, repeating = true }
-)
-hl.bind("XF86MonBrightnessUp", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%+"), { locked = true, repeating = true })
-hl.bind("XF86MonBrightnessDown", hl.dsp.exec_cmd("brightnessctl -e4 -n2 set 5%-"), { locked = true, repeating = true })
-
-hl.bind(
-	"SHIFT + CTRL + ALT + SUPER + R",
-	hl.dsp.exec_cmd(
-		"grim -t ppm - | satty --filename - --fullscreen --output-filename ~/Pictures/Screenshots/Screenshot_$(date '+%a-%d-%b_%Y%m%d-%H:%M:%S').png"
-	)
-)
-
-hl.bind("SHIFT + CTRL + ALT + SUPER + T", hl.dsp.exec_cmd("grim - | wl-copy"))
-hl.bind("SHIFT + CTRL + ALT + SUPER + N", hl.dsp.exec_cmd('grim -g "$(slurp)" - | wl-copy'))
-
--- ========================
-
-local function paste_slot(n)
-	return function()
-		hl.dispatch(hl.dsp.exec_cmd("copyq select " .. n))
-		hl.dispatch(hl.dsp.exec_cmd("~/dotfiles/.config/hypr/bin/paste"))
-	end
-end
-
-hl.bind("SHIFT + CTRL + ALT + SUPER + G", paste_slot(1))
-hl.bind("SHIFT + CTRL + ALT + SUPER + H", paste_slot(2))
-hl.bind("SHIFT + CTRL + ALT + SUPER + I", paste_slot(3))
-
-hl.bind("SHIFT + CTRL + ALT + SUPER + S", hl.dsp.exec_cmd("systemctl suspend"))
-hl.bind("SHIFT + CTRL + ALT + SUPER + O", hl.dsp.exec_cmd("~/dotfiles/.local/bin/poweroff"))
-hl.bind("SHIFT + CTRL + ALT + SUPER + P", hl.dsp.exec_cmd("~/dotfiles/.local/bin/logout"))
-
-hl.bind(
-	"SHIFT + CTRL + ALT + SUPER + A",
-	hl.dsp.exec_cmd("~/dotfiles/.local/bin/clipboard-slime-core --execute --jump")
-)
-hl.bind("SHIFT + CTRL + ALT + SUPER + B", hl.dsp.exec_cmd("~/dotfiles/.local/bin/clipboard-slime-core --execute"))
-hl.bind("SHIFT + CTRL + ALT + SUPER + C", hl.dsp.exec_cmd("~/dotfiles/.local/bin/clipboard-slime-core --jump"))
-hl.bind("SHIFT + CTRL + ALT + SUPER + F", hl.dsp.exec_cmd("~/dotfiles/.local/bin/clipboard-run-and-copy"))
-hl.bind(
-	"SHIFT + CTRL + ALT + SUPER + Q",
-	hl.dsp.exec_cmd("~/dotfiles/.local/bin/clipboard-slime-core --jump --no-cancel")
-)
-
-hl.bind("SHIFT + CTRL + ALT + SUPER + M", hl.dsp.exec_cmd("~/dotfiles/.local/bin/toggle-theme"))
-hl.bind("SHIFT + CTRL + ALT + SUPER + W", hl.dsp.exec_cmd("~/dotfiles/.local/bin/sys_status"))
-
-hl.bind(
-	"SHIFT + CTRL + ALT + SUPER + U",
-	hl.dsp.exec_cmd(
-		'[float; size 1100 600; center] kitty --config NONE --class kitty-wifi-popup -o remember_window_size=no -o confirm_os_window_close=0 -o font_family="JetBrainsMono Nerd Font" --single-instance --instance-group=wifi-popup sh -c "nmcli device wifi list ; nmtui-connect"'
-	)
-)
+require("bind")

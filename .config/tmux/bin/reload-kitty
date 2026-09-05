@@ -8,4 +8,4 @@ cur_session=$("$tmux_bin" "${tmux_sock_arg[@]}" display-message -p '#S')
 "$HOME/.config/tmux/plugins/tmux-resurrect/scripts/save.sh"
 "$tmux_bin" "${tmux_sock_arg[@]}" kill-server
 
-kitty --config ~/dotfiles/.config/kitty/terminal.conf sh -c 'tmux attach 2>/dev/null || tmux new-session' & disown
+kitty --config ~/archlinux/.config/kitty/terminal.conf sh -c 'tmux attach 2>/dev/null || tmux new-session' & disown

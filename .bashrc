@@ -40,7 +40,7 @@ elif [ -f /etc/bash_completion ]; then
   source /etc/bash_completion
 fi
 
-alias ls='ls --color=always -A --group-directories-first'
+alias ls='ls --hyperlink=always --color=always -A --group-directories-first'
 
 source <(fzf --bash)
 export FZF_DEFAULT_OPTS="
@@ -81,7 +81,7 @@ export FZF_DEFAULT_OPTS="
 --bind 'ctrl-end:last'
 --bind 'ctrl-up:prev-history'
 --bind 'ctrl-down:next-history'
---bind 'ctrl-alt-shift-home:execute(/home/iqrar/dotfiles/.config/tmux/bin/vim-fzf-focus {})'
+--bind 'ctrl-alt-shift-home:execute(/home/iqrar/archlinux/.config/tmux/bin/vim-fzf-focus {})'
 "
 export FZF_CTRL_R_OPTS="--no-preview"
 

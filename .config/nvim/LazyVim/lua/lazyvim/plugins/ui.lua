@@ -60,115 +60,112 @@ return {
     "nvim-lualine/lualine.nvim",
     event = "VeryLazy",
     opts = function()
+      -- PERF: we don't need this lualine require madness 🤷
       local lualine_require = require("lualine_require")
       lualine_require.require = require
+
       local icons = LazyVim.config.icons
 
-      -- Define statusline configuration (will appear at top via tabline)
-      local statusline_config = {
-        lualine_a = {},
-        lualine_b = {},
-        lualine_c = { { aerial_with_indent_highlights, padding = { left = 0, right = 0 } } },
-        lualine_x = {
-          {
-            function()
-              return require("noice").api.status.command.get()
-            end,
-            cond = function()
-              return package.loaded["noice"] and require("noice").api.status.command.has()
-            end,
-            color = function()
-              return { fg = Snacks.util.color("Statement") }
-            end,
-            padding = { left = 0, right = 0 },
-          },
-          {
-            function()
-              return require("noice").api.status.mode.get()
-            end,
-            cond = function()
-              return package.loaded["noice"] and require("noice").api.status.mode.has()
-            end,
-            color = function()
-              return { fg = Snacks.util.color("Constant") }
-            end,
-            padding = { left = 0, right = 0 },
-          },
-          {
-            function()
-              return "  " .. require("dap").status()
-            end,
-            cond = function()
-              return package.loaded["dap"] and require("dap").status() ~= ""
-            end,
-            color = function()
-              return { fg = Snacks.util.color("Debug") }
-            end,
-            padding = { left = 0, right = 0 },
-          },
-          {
-            "diff",
-            symbols = {
-              added = icons.git.added,
-              modified = icons.git.modified,
-              removed = icons.git.removed,
-            },
-            source = function()
-              local gitsigns = vim.b.gitsigns_status_dict
-              if gitsigns then
-                return {
-                  added = gitsigns.added,
-                  modified = gitsigns.changed,
-                  removed = gitsigns.removed,
-                }
-              end
-            end,
-            padding = { left = 0, right = 0 },
-          },
-          {
-            function(self)
-              local total = vim.fn.line("$")
-              local root_path = LazyVim.root.get({ normalize = true })
-              local root = vim.fs.basename(root_path)
-              local path = LazyVim.lualine.pretty_path()(self)
-              return string.format(
-                "%s%s%s%s%s%d",
-                "%*%#SnacksPickerDirectory#",
-                root,
-                "%*%#NeogitGraphBoldGreen#/",
-                path,
-                "%*%#Dimmed#:%#CursorLineNr#",
-                total
-              )
-            end,
-            color = function()
-              return { fg = Snacks.util.color("Special") }
-            end,
-            padding = { left = 0, right = 0 },
-          },
-        },
-        lualine_y = {},
-        lualine_z = {},
-      }
+      vim.o.laststatus = vim.g.lualine_laststatus
+
       local opts = {
         options = {
-          globalstatus = true,
+          theme = "auto",
+          globalstatus = true, -- ONE statusline for the whole editor
           component_separators = { left = "┃", right = "┃" },
           section_separators = { left = "", right = "" },
           ignore_focus = {},
           always_divide_middle = true,
           disabled_filetypes = {
-            statusline = { "dashboard", "alpha", "ministarter", "ministarter", "snacks_dashboard" },
+            statusline = { "dashboard", "alpha", "ministarter", "snacks_dashboard" },
           },
         },
-        -- Disable bottom statusline
-        sections = {},
-        inactive_sections = {},
-        -- Use tabline for top statusline
-        tabline = statusline_config,
-        -- Disable winbar completely
-        winbar = {},
-        inactive_winbar = {},
+        sections = {
+          lualine_a = {},
+          lualine_b = {},
+          lualine_c = { { aerial_with_indent_highlights, padding = { left = 0, right = 0 } } },
+          lualine_x = {
+            {
+              function()
+                return require("noice").api.status.command.get()
+              end,
+              cond = function()
+                return package.loaded["noice"] and require("noice").api.status.command.has()
+              end,
+              color = function()
+                return { fg = Snacks.util.color("Statement") }
+              end,
+              padding = { left = 0, right = 0 },
+            },
+            {
+              function()
+                return require("noice").api.status.mode.get()
+              end,
+              cond = function()
+                return package.loaded["noice"] and require("noice").api.status.mode.has()
+              end,
+              color = function()
+                return { fg = Snacks.util.color("Constant") }
+              end,
+              padding = { left = 0, right = 0 },
+            },
+            {
+              function()
+                return "  " .. require("dap").status()
+              end,
+              cond = function()
+                return package.loaded["dap"] and require("dap").status() ~= ""
+              end,
+              color = function()
+                return { fg = Snacks.util.color("Debug") }
+              end,
+              padding = { left = 0, right = 0 },
+            },
+            {
+              "diff",
+              symbols = {
+                added = icons.git.added,
+                modified = icons.git.modified,
+                removed = icons.git.removed,
+              },
+              source = function()
+                local gitsigns = vim.b.gitsigns_status_dict
+                if gitsigns then
+                  return {
+                    added = gitsigns.added,
+                    modified = gitsigns.changed,
+                    removed = gitsigns.removed,
+                  }
+                end
+              end,
+              padding = { left = 0, right = 0 },
+            },
+            {
+              function(self)
+                local total = vim.fn.line("$")
+                local root_path = LazyVim.root.get({ normalize = true })
+                local root = vim.fs.basename(root_path)
+                local path = LazyVim.lualine.pretty_path()(self)
+                return string.format(
+                  "%s%s%s%s%s%d",
+                  "%*%#SnacksPickerDirectory#",
+                  root,
+                  "%*%#NeogitGraphBoldGreen#/",
+                  path,
+                  "%*%#Dimmed#:%#CursorLineNr#",
+                  total
+                )
+              end,
+              color = function()
+                return { fg = Snacks.util.color("Special") }
+              end,
+              padding = { left = 0, right = 0 },
+            },
+          },
+          lualine_y = {},
+          lualine_z = {},
+        },
+        extensions = { "neo-tree", "lazy", "fzf" },
       }
       return opts
     end,
@@ -227,13 +224,11 @@ return {
           },
           position = { row = 0, col = 0 },
         },
-        cmdline = { position = { row = 0 } },
       },
     },
     -- stylua: ignore
     keys = {
       { "<C-J>", function() require("noice").redirect(vim.fn.getcmdline()) end, mode = "c", desc = "Redirect Cmdline" },
-      { "<leader>hy", function() require("noice").cmd("last") end, desc = "Noice Last Message" },
       { "<C-S-H>", function() if not require("noice.lsp").scroll(8) then return "<c-f>" end end, silent = true, expr = true, desc = "Scroll Forward", mode = {"i", "n", "s"} },
       { "<C-S-S>", function() if not require("noice.lsp").scroll(-8) then return "<c-b>" end end, silent = true, expr = true, desc = "Scroll Backward", mode = {"i", "n", "s"}},
     },

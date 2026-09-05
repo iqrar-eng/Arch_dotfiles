@@ -30,7 +30,7 @@ directory="$2"
 save="$3"
 path="$4"
 out="$5"
-cmd="env YAZI_CONFIG_HOME=/home/iqrar/dotfiles/.config/yazi /usr/bin/yazi"
+cmd="yazi"
 # "wezterm start --always-new-process" if you use wezterm
 if [ "$save" = "1" ]; then
   TITLE="Save File:"

@@ -20,19 +20,17 @@ sudo pacman -S --needed --noconfirm firefox fd ripgrep starship zoxide neovim vi
 
 # Set the charge type to Long_Life mode ( 80% threshold )
 # https://linrunner.de/tlp/installation/arch.html
+# https://linrunner.de/tlp/settings/bc-vendors.html#lenovo-non-thinkpad-series
+# https://linrunner.de/tlp/settings/battery.html#start-stop-charge-thresh-batx
 sudo pacman -S --needed --noconfirm tlp
-sudo systemctl enable --now tlp.service
-sudo sed -i 's/^#*STOP_CHARGE_THRESH_BAT0=.*/STOP_CHARGE_THRESH_BAT0=1/' /etc/tlp.conf
-grep -q '^STOP_CHARGE_THRESH_BAT0=' /etc/tlp.conf || echo 'STOP_CHARGE_THRESH_BAT0=1' | sudo tee -a /etc/tlp.conf
-sudo tlp start
-sudo tlp-stat -b
+sudoedit /etc/tlp.conf
 
 sudo pacman -S --needed --noconfirm man-db man-pages
 sudo man-db
 
 # ========================
 
-git clone https://github.com/iqrar-eng/dotfiles ~/dotfiles
+git clone https://github.com/iqrar-eng/archlinux ~/archlinux
 
 paths=(
   ".bash_profile"
@@ -48,6 +46,7 @@ paths=(
   ".config/nvim"
   ".config/rofi"
   ".config/systemd"
+  ".config/yazi"
   ".config/tmux/tmux.conf"
   ".config/mimeapps.list"
   ".config/starship.toml"
@@ -59,35 +58,18 @@ paths=(
   ".local/share/applications"
 )
 
-# backup
-# ========================
-
-for p in "${paths[@]}"; do
-  if [ -L "$HOME/$p" ]; then
-    echo "skip (already linked): $p"
-    continue
-  fi
-  if [ ! -e "$HOME/$p" ]; then
-    echo "skip (source doesn't exist): $p"
-    continue
-  fi
-  mkdir -p "$HOME/dotfiles/$(dirname "$p")" \
-  && mv "$HOME/$p" "$HOME/dotfiles/$p" \
-  && ln -sfn "$HOME/dotfiles/$p" "$HOME/$p"
-done
-
 # restore
 # ========================
 
 for p in "${paths[@]}"; do
-  mkdir -p "$HOME/$(dirname "$p")" "$HOME/dotfiles/$(dirname "$p")"
-  ln -sfn "$HOME/dotfiles/$p" "$HOME/$p"
+  rm -rf "$HOME/$p"
+  mkdir -p "$HOME/$(dirname "$p")" "$HOME/archlinux/$(dirname "$p")"
+  ln -sfn "$HOME/archlinux/$p" "$HOME/$p"
 done
 
-sudo mkdir -p "$HOME/dotfiles/etc/keyd"
+sudo rm -rf "/etc/keyd/default.conf"
 sudo mkdir -p /etc/keyd
-sudo chmod 777 "$HOME/dotfiles/etc/keyd/default.conf"
-sudo ln -sfn "$HOME/dotfiles/etc/keyd/default.conf" "/etc/keyd/default.conf"
+sudo ln -sfn "$HOME/archlinux/etc/keyd/default.conf" "/etc/keyd/default.conf"
 
 update-desktop-database "$HOME/.local/share/applications/"
 xdg-mime default yazi.desktop inode/directory

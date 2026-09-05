@@ -10,4 +10,4 @@ fi
 copyq eval -- "copy(\"text/uri-list\",\"file://$FILE\",\"x-special/gnome-copied-files\",\"copy\nfile://$FILE\")" >/dev/null
 
 hyprctl dispatch "hl.dsp.focus({ workspace = "1" })" >/dev/null
-~/dotfiles/.config/hypr/bin/paste
+~/archlinux/.config/hypr/bin/paste
